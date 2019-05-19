@@ -33,9 +33,11 @@ int main(int argc, char *argv[]) {
     testGetWhoseTurn ();
     testGetMostARCs ();
     testgetMostPublications ();
+    testGetDiscipline ();
+    testGetDiceValue ();
 
     //clean up: keep your memory beautiful
-    disposeGame(testGame);
+    //disposeGame(testGame);
 
     //TODO: all tests passed message :)
 
@@ -44,16 +46,30 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
+// void testMakeAction () {
+
+// }
+
+// This also tests "getWhoseTurn" and "getTurnNumber"
 void testThrowDice () {
     int disciplines[] = DEFAULT_DISCIPLINES;
     int dice[] = DEFAULT_DICE;
     Game testGame = newGame(disciplines, dice);
 
-    assert (getTurn (testGame) == -1);
+    assert (getWhoseTurn (testGame) == 0);
+    assert (getTurnNumber (testGame) == -1);
     throwDice(testGame, 6);
-    assert (getTurn (testGame) == 0);   
+    assert (getWhoseTurn (testGame) == 1);
+    assert (getTurnNumber (testGame) == 0);
     throwDice(testGame, 2);
-    assert (getTurn (testGame) == 1);
+    assert (getWhoseTurn (testGame) == 2);
+    assert (getTurnNumber (testGame) == 1);
+    throwDice(testGame, 3);
+    assert (getWhoseTurn (testGame) == 3);
+    assert (getTurnNumber (testGame) == 2);
+    throwDice(testGame, 2);
+    assert (getWhoseTurn (testGame) == 1);
+    assert (getTurnNumber (testGame) == 3);
 
     disposeGame (testGame);
 }
@@ -61,7 +77,7 @@ void testThrowDice () {
 void testGetWhoseTurn () {
     int disciplines[] = DEFAULT_DISCIPLINES;
     int dice[] = DEFAULT_DICE;
-    Game testGame = newGame(disciplines, dice);    
+    Game testGame = newGame(disciplines, dice);
 
     assert (getWhoseTurn (testGame) == NO_ONE);
     throwDice (testGame, 3);
@@ -82,33 +98,37 @@ void testGetMostARCs () {
     Game testGame = newGame(disciplines, dice);    
 
     assert (getMostARCs (testGame) == NO_ONE);
-    
+    assert (getARCs (testGame, UNI_A) == NO_ONE);
+
     action createARC;
     createARC.actionCode = OBTAIN_ARC;
-    createARC.path = {L}; 
+    createARC.path = {'L'}; 
 
-    makeAction (testGame, OBTAIN_ARC);
+    makeAction (testGame, createARC);
     int currentMostARCs = getWhoseTurn (testGame);
     assert (getMostARCs (testGame) == getWhoseTurn (testGame));
 
     throwDice (testGame, 3);
 
-    // WARNING: I just realised makeAction requires actionCode and destination, so this won't work
-    makeAction (testGame, OBTAIN_ARC);
-    makeAction (testGame, OBTAIN_ARC);
+    createARC.path = {'LR'};
+    makeAction (testGame, createARC);
+    createARC.path = {'LRL'};
+    makeAction (testGame, createARC);
     int currentMostARCs = getWhoseTurn (testGame);
     assert (getMostARCs (testGame) == currentMostARCs);
 
     throwDice (testGame, 2);
 
-    // WARNING: I just realised makeAction requires actionCode and destination, so this won't work
-    makeAction (testGame, OBTAIN_ARC);
-    makeAction (testGame, OBTAIN_ARC);
+    createARC.path = {'R'};
+    makeAction (testGame, createARC);
+    createARC.path = {'RL'};
+    makeAction (testGame, createARC);
     assert (getMostARCs (testGame) == currentMostARCs);
 
-    // WARNING: I just realised makeAction requires actionCode and destination, so this won't work
-    makeAction (testGame, OBTAIN_ARC);
-    assert (getMostARCs (testGame) == getWhoseTurn (testGame));    
+    createARC.path = {'RLR'};
+    makeAction (testGame, createARC);
+    assert (getMostARCs (testGame) == getWhoseTurn (testGame)); 
+
     printf("getMostARCs works\n");
 
     disposeGame (testGame);
@@ -250,5 +270,9 @@ void testGetDiceValue () {
     assert (getDiceValue (testGame2, 19) == DEFAULT_DICE[19]);
 
     disposeGame (testGame2);
+
+}
+
+void testGetCampus(Game g, path pathToVertex) {
 
 }
