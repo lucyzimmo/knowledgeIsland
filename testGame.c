@@ -36,10 +36,34 @@ int main(int argc, char *argv[]) {
     testGetDiscipline ();
     testGetDiceValue ();
 
+    /*Checklist:
+    
+    **** DONE Game newGame (int discipline[], int dice[]); Tested in every function
+    **** DONE void disposeGame (Game g); Tested in every function
+    ** void makeAction (Game g, action a); Tested in every function. Needs more tests.
+    **** void throwDice (Game g, int diceScore); testThrowDice ();
+    **** int getDiscipline (Game g, int regionID); testGetDiscipline ();
+    **** int getDiceValue (Game g, int regionID); testGetDiceValue ();
+    **** int getMostARCs (Game g); testGetMostARCs ();
+    **** int getMostPublications (Game g); testgetMostPublications ();
+    **** int getTurnNumber (Game g); testThrowDice ();
+    **** int getWhoseTurn (Game g); testThrowDice ();
+    **** int getCampus(Game g, path pathToVertex);
+    int getARC(Game g, path pathToEdge); 
+    int isLegalAction (Game g, action a);
+    **** int getARCs (Game g, int player);testGetMostARCs ();
+    int getGO8s (Game g, int player);
+    **** int getCampuses (Game g, int player);
+    int getIPs (Game g, int player);
+    **** int getPublications (Game g, int player);
+    int getStudents (Game g, int player, int discipline); KAYA
+    int getExchangeRate (Game g, int player, RUBY
+                         int disciplineFrom, int disciplineTo); 
+    */
+
     //clean up: keep your memory beautiful
     //disposeGame(testGame);
 
-    //TODO: all tests passed message :)
 
     printf("All tests passed!!!\nYou are awesome!");
 
@@ -49,11 +73,11 @@ int main(int argc, char *argv[]) {
 // void testMakeAction () {
 
 // }
-
+ 
 // This also tests "getWhoseTurn" and "getTurnNumber"
 void testThrowDice () {
-    int disciplines[] = DEFAULT_DISCIPLINES;
-    int dice[] = DEFAULT_DICE;
+    int disciplines[NUM_REGIONS] = DEFAULT_DISCIPLINES;
+    int dice[NUM_REGIONS] = DEFAULT_DICE;
     Game testGame = newGame(disciplines, dice);
 
     assert (getWhoseTurn (testGame) == 0);
@@ -75,8 +99,8 @@ void testThrowDice () {
 }
 
 void testGetWhoseTurn () {
-    int disciplines[] = DEFAULT_DISCIPLINES;
-    int dice[] = DEFAULT_DICE;
+    int disciplines[NUM_REGIONS] = DEFAULT_DISCIPLINES;
+    int dice[NUM_REGIONS] = DEFAULT_DICE;
     Game testGame = newGame(disciplines, dice);
 
     assert (getWhoseTurn (testGame) == NO_ONE);
@@ -92,13 +116,14 @@ void testGetWhoseTurn () {
     disposeGame (testGame);
 }
 
+// Also tests getARCs
 void testGetMostARCs () {
-    int disciplines[] = DEFAULT_DISCIPLINES;
-    int dice[] = DEFAULT_DICE;
+    int disciplines[NUM_REGIONS] = DEFAULT_DISCIPLINES;
+    int dice[NUM_REGIONS] = DEFAULT_DICE;
     Game testGame = newGame(disciplines, dice);    
 
     assert (getMostARCs (testGame) == NO_ONE);
-    assert (getARCs (testGame, UNI_A) == NO_ONE);
+    assert (getARCs (testGame, UNI_A) == 0);
 
     action createARC;
     createARC.actionCode = OBTAIN_ARC;
@@ -107,6 +132,7 @@ void testGetMostARCs () {
     makeAction (testGame, createARC);
     int currentMostARCs = getWhoseTurn (testGame);
     assert (getMostARCs (testGame) == getWhoseTurn (testGame));
+    assert (getARCs (testGame, getWhoseTurn (testGame)) == 1);
 
     throwDice (testGame, 3);
 
@@ -116,6 +142,8 @@ void testGetMostARCs () {
     makeAction (testGame, createARC);
     int currentMostARCs = getWhoseTurn (testGame);
     assert (getMostARCs (testGame) == currentMostARCs);
+    assert (getARCs (testGame, currentMostARCs) == 2);
+
 
     throwDice (testGame, 2);
 
@@ -124,24 +152,29 @@ void testGetMostARCs () {
     createARC.path = {'RL'};
     makeAction (testGame, createARC);
     assert (getMostARCs (testGame) == currentMostARCs);
+    assert (getARCs (testGame, getWhoseTurn (testGame)) == 2);
 
     createARC.path = {'RLR'};
     makeAction (testGame, createARC);
-    assert (getMostARCs (testGame) == getWhoseTurn (testGame)); 
+    assert (getMostARCs (testGame) == getWhoseTurn (testGame));
+    assert (getARCs (testGame, getWhoseTurn (testGame)) == 3);
 
     printf("getMostARCs works\n");
 
     disposeGame (testGame);
 }
 
+// Also tests getPublications
 void testgetMostPublications () {
     Game testGame = newGame(disciplines, dice);    
     assert (getMostPublications (testGame) == NO_ONE);
+    assert (getPublications (testGame, UNI_A) == 0);
 
     action obtainPublication;
     obtainPublication.actionCode = OBTAIN_PUBLICATION;
     makeAction (testGame, obtainPublication);
     assert (getMostPublications (testGame) == getWhoseTurn (testGame));
+    assert (getPublications (testGame, getWhoseTurn (testGame)) == 1);
 
     throwDice (testGame, 3);
 
@@ -149,22 +182,25 @@ void testgetMostPublications () {
     makeAction (testGame, obtainPublication);
     int currentMostARCs = getWhoseTurn (testGame);
     assert (getMostPublications (testGame) == currentMostARCs);
+    assert (getPublications (testGame, currentMostARCs) == 2);    
 
     throwDice (testGame, 2);
 
     makeAction (testGame, obtainPublication);
     makeAction (testGame, obtainPublication);
     assert (getMostPublications (testGame) == currentMostARCs);
+    assert (getPublications (testGame, getWhoseTurn (testGame)) == 2);
 
     makeAction (testGame, obtainPublication);
-    assert (getMostPublications (testGame) == getWhoseTurn (testGame));    
+    assert (getMostPublications (testGame) == getWhoseTurn (testGame));
+    assert (getPublications (testGame, getWhoseTurn (testGame)) == 3);  
 
     disposeGame (testGame);
 }
 
 void testGetDiscipline () {
-    int disciplines[] = DEFAULT_DISCIPLINES;
-    int dice[] = DEFAULT_DICE;
+    int disciplines[NUM_REGIONS] = DEFAULT_DISCIPLINES;
+    int dice[NUM_REGIONS] = DEFAULT_DICE;
     Game testGame = newGame(disciplines, dice);  
 
     assert (getDiscipline (testGame, 0) == DEFAULT_DISCIPLINES[0]);
@@ -219,8 +255,8 @@ void testGetDiscipline () {
 
 
 void testGetDiceValue () {
-    int disciplines[] = DEFAULT_DISCIPLINES;
-    int dice[] = DEFAULT_DICE;
+    int disciplines[NUM_REGIONS] = DEFAULT_DISCIPLINES;
+    int dice[NUM_REGIONS] = DEFAULT_DICE;
     Game testGame = newGame(disciplines, dice);  
 
     assert (getDiceValue (testGame, 0) == DEFAULT_DICE[0]);
@@ -273,6 +309,67 @@ void testGetDiceValue () {
 
 }
 
-void testGetCampus(Game g, path pathToVertex) {
+// This also tests getCampuses
+void testGetCampus () {
+    int disciplines[NUM_REGIONS] = DEFAULT_DISCIPLINES;
+    int dice[NUM_REGIONS] = DEFAULT_DICE;
+    Game testGame = newGame(disciplines, dice);    
 
+    path currentPoint = "R";
+    assert (getCampus (testGame, currentPoint) == VACANT_VERTEX);
+    assert (GetCampuses (testGame, UNI_A) == 2);
+
+    action createCampus;
+    createCampus.actionCode = OBTAIN_CAMPUS;
+    createCampus.path = "R"; 
+    makeAction (createCampus);
+    int currentTurn = getWhoseTurn (testGame);
+    assert (getCampus (testGame, currentPoint) == currentTurn);
+    assert (GetCampuses (testGame, currentTurn) == 3);
+
+    currentPoint = "L";
+    assert (getCampus (testGame, currentPoint) == VACANT_VERTEX);
+
+    throwDice (testGame, 8);
+
+    currentPoint = "R";
+    assert (getCampus (testGame, currentPoint) == currentTurn);
+    assert (GetCampuses (testGame, getWhoseTurn (testGame)) == 1);
+
+
+    createCampus.path = "RL"; 
+    makeAction (createCampus);
+    currentTurn = getWhoseTurn (testGame);
+    assert (getCampus (testGame, currentPoint) == currentTurn);
+    assert (GetCampuses (testGame, currentTurn) == 2);
+
+    printf("getMostARCs works\n");
+
+    disposeGame (testGame);
+}
+
+void testGetStudents () {
+    int disciplines[NUM_REGIONS] = DEFAULT_DISCIPLINES;
+    int dice[NUM_REGIONS] = DEFAULT_DICE;
+    Game testGame = newGame(disciplines, dice);
+
+    assert (getStudents (testGame, UNI_A, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_A, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_A, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_A, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_A, STUDENT_MMONEY) == 1);
+
+    throwDice (testGame, 10);
+
+    assert (getStudents (testGame, UNI_A, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_A, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_A, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_A, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_A, STUDENT_MMONEY) == 2);
+
+    disposeGame (testGame);
 }
