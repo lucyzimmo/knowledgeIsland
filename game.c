@@ -59,6 +59,72 @@ typedef struct _player {
     int studentType[NUM_DISCIPLINES]
 } *Player;
 
+Game newGame (int discipline[], int dice[]) {
+    // Actually modify structs and do specifics
+    
+    Game g;
+    
+    // Setting up players 
+    int i = 0; 
+    while (i <= NUM_UNIS) {
+        Player currentPlayer = g->players[i];
+        currentPlayer->KPIPoints = 2 * CAMPUS_KPI_POINTS;
+    }
+    Player uniA g->players[UNI_A-1]; //UNI_A is 1 not 0, so to convert it to indexes you need to subtract 1
+    uniA->campuses[] = {PATH_TO_CAMPUS_A1, PATH_TO_CAMPUS_A2};
+
+    Player uniB g->players[UNI_B-1];
+    uniB->campuses[] = {PATH_TO_CAMPUS_B1, PATH_TO_CAMPUS_B2};
+
+    Player uniC g->players[UNI_C-1];
+    uniC->campuses[] = {PATH_TO_CAMPUS_C1, PATH_TO_CAMPUS_C2};
+
+
+
+    // Setting up hexes
+    i = 0;
+    while (i < NUM_REGIONS) {
+        Hex currentHex = g->hexes[i];
+        currentHex->hexIndex = i;
+        currentHex->diceValue = dice[i];
+        currentHex->student = discipline[i];
+        currentHex->ARCs = {0, 0, 0, 0, 0, 0};
+        currentHex->GO8s = {0, 0, 0, 0, 0, 0};
+        if (i != 0 && i != 2 && i != 7 && i != 11 && i != 16 && i != 18) {
+            currentHex->campuses = {0, 0, 0, 0, 0, 0};
+        }
+    }
+
+    g->hexes[0]->campuses = {0, 0, 0, 0, 0, UNI_B};
+    g->hexes[2]->campuses = {0, 0, 0, 0, UNI_C, 0};
+    g->hexes[7]->campuses = {UNI_A, 0, 0, 0, 0, 0};
+    g->hexes[11]->campuses = {0, 0, 0, UNI_A, 0, 0};
+    g->hexes[16]->campuses = {0, UNI_C, 0, 0, 0, 0};
+    g->hexes[18]->campuses = {0, 0, UNI_B, 0, 0, 0};
+    
+    g->hexes[0]->borderingHexes = {NULL, g->hexes[3], g->hexes[4], g->hexes[1], NULL, NULL};
+    g->hexes[1]->borderingHexes = {g->hexes[0], g->hexes[4], g->hexes[5], g->hexes[2], NULL, NULL};
+    g->hexes[2]->borderingHexes = {g->hexes[1], g->hexes[5], g->hexes[6], NULL, NULL, NULL};
+    g->hexes[3]->borderingHexes = {NULL, g->hexes[7], g->hexes[8], g->hexes[4], g->hexes[0], NULL};
+    g->hexes[4]->borderingHexes = {g->hexes[3], g->hexes[8], g->hexes[9], g->hexes[5], g->hexes[1], g->hexes[0]};
+    g->hexes[5]->borderingHexes = {g->hexes[4], g->hexes[9], g->hexes[10], g->hexes[6], g->hexes[2], g->hexes[1]};
+    g->hexes[6]->borderingHexes = {g->hexes[5], g->hexes[10], g->hexes[11], NULL, NULL, g->hexes[2]};
+    g->hexes[7]->borderingHexes = {NULL, NULL, g->hexes[12], g->hexes[8], g->hexes[3], NULL};
+    g->hexes[8]->borderingHexes = {g->hexes[7], g->hexes[12], g->hexes[13], g->hexes[9], g->hexes[4], g->hexes[3]};
+    g->hexes[9]->borderingHexes = {g->hexes[8], g->hexes[13], g->hexes[14], g->hexes[10], g->hexes[5], g->hexes[4]};
+    g->hexes[10]->borderingHexes = {g->hexes[9], g->hexes[14], g->hexes[15], g->hexes[11], g->hexes[6], g->hexes[5]};
+    g->hexes[11]->borderingHexes = {g->hexes[10], g->hexes[15], NULL, NULL, NULL, g->hexes[6]};
+    g->hexes[12]->borderingHexes = {NULL, NULL, g->hexes[16], g->hexes[13], g->hexes[8], g->hexes[7]};
+    g->hexes[13]->borderingHexes = {g->hexes[12], g->hexes[16], g->hexes[17], g->hexes[14], g->hexes[9], g->hexes[8]};
+    g->hexes[14]->borderingHexes = {g->hexes[13], g->hexes[17], g->hexes[18], g->hexes[15], g->hexes[10], g->hexes[9]};
+    g->hexes[15]->borderingHexes = {g->hexes[14], g->hexes[18], NULL, NULL, g->hexes[12], g->hexes[10]};
+    g->hexes[16]->borderingHexes = {NULL, NULL, NULL, g->hexes[17], g->hexes[13], g->hexes[12]};
+    g->hexes[17]->borderingHexes = {g->hexes[16], NULL, NULL, g->hexes[18], g->hexes[14], g->hexes[13]};
+    g->hexes[18]->borderingHexes = {g->hexes[17], NULL, NULL, NULL, g->hexes[15], g->hexes[14]};
+
+    return g;
+}
+
 int getIPs(Game g, int player) {
     return g->players[player].ips;
 }
