@@ -7,6 +7,8 @@
 #define PATH_TO_CAMPUS_B 2 "LRLRLRRLRL"
 #define PATH_TO_CAMPUS_C 1 "LRLRL"
 #define PATH_TO_CAMPUS_C 2 "LRLRLLRLRL"
+#define DEFAULT_EXCHANGE 3
+#define RETRAIN_EXCHANGE 2
 
 
 struct _point {
@@ -235,3 +237,25 @@ void makeAction (Game g, action a) {
       g->players[currentPlayer].studentType[a.disciplineTo] += 1;
    }
 }
+
+int getExchangeRate (Game g, int player, int disciplineFrom, int disciplineTo) {
+   int exchangerate = DEFAULT_EXCHANGE; //checks if campuses are on retrain areas, if they are sets it lower
+   if (((getCampus(g,"R") == player) ||
+    (getCampus(g,"RR") == player)) && (disciplineFrom == STUDENT_MTV)) {
+      exchangerate = RETRAIN_EXCHANGE;
+   } else if (((getCampus(g,"LL") == player) 
+      || (getCampus(g,"LLL") == player)) && (disciplineFrom == STUDENT_MMONEY)) {
+      exchangerate = RETRAIN_EXCHANGE;
+   } else if (((getCampus(g,"RRRLRLRLR") == player)
+    || (getCampus(g,"RRRLRLRLRL") == player)) && (disciplineFrom==STUDENT_BPS)) {
+      exchangerate = RETRAIN_EXCHANGE;
+   } else if (((getCampus(g,"LLLLRLRLRL") == player)
+    || (getCampus(g,"LLLLRLRLRLR") == player)) && (disciplineFrom == STUDENT_MJ)) {
+      exchangerate = RETRAIN_EXCHANGE;
+   } else if (((getCampus(g,"RRRLRR") == player) 
+      || (getCampus(g,"RRRLRRR") == player)) && (disciplineFrom == STUDENT_BQN)){
+      exchangerate = RETRAIN_EXCHANGE;
+   }
+   return exchangerate;
+}
+
