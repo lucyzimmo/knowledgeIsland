@@ -190,7 +190,7 @@ void makeAction (Game g, action a) {
       g->players[currentPlayer-1].studentType[STUDENT_BQN]--;
       g->players[currentPlayer-1].studentType[STUDENT_MJ]--;
       g->players[currentPlayer-1].studentType[STUDENT_MTV]--;
-   } else if (a.actionCode == BUILD_GO8) {
+   } else if (a.actionCode == BUILD_GO8) { 
       g->vertices[x][y].campus = currentPlayer + 3; //add to account for GO8
       g->players[currentPlayer-1].campuses--; //remove campus as GO8 replaces campus
       g->players[currentPlayer-1].go8s++;
