@@ -25,6 +25,7 @@ void testGetMostARCs ();
 void testgetMostPublications ();
 void testGetDiscipline ();
 void testGetDiceValue ();
+void isLegalAction();
 
 int main(int argc, char *argv[]) {
 
@@ -35,6 +36,7 @@ int main(int argc, char *argv[]) {
     testgetMostPublications ();
     testGetDiscipline ();
     testGetDiceValue ();
+    isLegalAction();
 
     /*Checklist:
     
@@ -372,4 +374,288 @@ void testGetStudents () {
     assert (getStudents (testGame, UNI_A, STUDENT_MMONEY) == 2);
 
     disposeGame (testGame);
+}
+
+void isLegalAction() {		
+    printf("Testing retraining.\n");		
+         action retraining = { RETRAIN_STUDENTS, "",		
+            STUDENT_BPS, STUDENT_THD };		
+         while (retraining.disciplineFrom < STUDENT_MMONEY) {		
+            assert(isLegalAction(testGame, retraining));		
+            ++retraining.disciplineFrom;		
+         }		
+         assert(!isLegalAction(testGame, retraining));		
+         printf("You can't retrain THDs :(\n");		
+         retraining.disciplineFrom = STUDENT_THD;		
+         retraining.disciplineTo = STUDENT_MMONEY;		
+         assert(!isLegalAction(testGame, retraining));		
+    		
+    printf("Testing pass.\n");		
+    throwDice(testGame, 8);		
+    action pass = { PASS, "", 0, 0 };		
+    assert(isLegalAction(testGame, pass));		
+      }		
+    //testing illegality of upgrading campus		
+    action makeGO8 = { BUILD_GO8, "", 0, 0 };		
+    assert(!isLegalAction(testGame, makeGO8));		
+    //testing illegality of upgrading campus to GO8		
+    action makeGO8 = { BUILD_GO8, B_START "BLL", 0, 0 };		
+    assert(isLegalAction(testGame, makeGO8));		
+    makeAction(testGame, makeGO8);		
+}
+	void testGetGO8s(void) {		
+   		
+   printf("Begin testGetGO8s test.\n");		
+   Game testGame = NULL;		
+   int i;		
+   		
+   // initialise game		
+   int disciplines[NUM_REGIONS];		
+   int dice[NUM_REGIONS];		
+   i = 0;		
+   while (i < NUM_REGIONS) {		
+      disciplines[i] = STUDENT_BPS;		
+      dice[i] = 6;		
+      ++i;		
+   }		
+   testGame = newGame(disciplines, dice);		
+   		
+   // give everyone lots of resources		
+   i = 0;		
+   while (i < 3000) {		
+      // firstly give everyone lots of STUDENT_BPS		
+      throwDice(testGame, 6);		
+      i++;		
+   }		
+   i = 0;		
+   while (i < 3) {		
+      // then retrain some of the STUDENT_BPS to other disciplines		
+      throwDice(testGame, 6);		
+      int j = 0;		
+      while (j < 100) {		
+         action retrain = { RETRAIN_STUDENTS, "", STUDENT_BPS, -1 };		
+         retrain.disciplineTo = STUDENT_BQN;		
+         makeAction(testGame, retrain);		
+         retrain.disciplineTo = STUDENT_MJ;		
+         makeAction(testGame, retrain);		
+         retrain.disciplineTo = STUDENT_MTV;		
+         makeAction(testGame, retrain);		
+         retrain.disciplineTo = STUDENT_MMONEY;		
+         makeAction(testGame, retrain);		
+         j++;		
+      }		
+      i++;		
+   }		
+   		
+   // Terra Nullis condition		
+   // At the start, no one has any arcs		
+   assert(getGO8s (testGame, UNI_A) == 0);		
+   assert(getGO8s (testGame, UNI_B) == 0);		
+   assert(getGO8s (testGame, UNI_C) == 0);		
+   		
+   // Start with Player A's turn. Player A will make 2 arc grants and		
+   // build a campus		
+   throwDice(testGame, 6);		
+   // Making first arc		
+   {		
+      action makeARC = { OBTAIN_ARC, "L", 0 , 0 };		
+      makeAction(testGame, makeARC);		
+   }		
+   // Second arc, then campus then convert to GO8		
+   {		
+      action makeARC = { OBTAIN_ARC, "LR", 0 , 0 };		
+      makeAction(testGame, makeARC);		
+      		
+      action buildCampus = { BUILD_CAMPUS, "LR", 0 , 0 };		
+      makeAction(testGame, buildCampus);		
+      assert(getGO8s (testGame, UNI_A) == 0);		
+      assert(getGO8s (testGame, UNI_B) == 0);		
+      assert(getGO8s (testGame, UNI_C) == 0);		
+   }		
+   {		
+      action buildGO8 = { BUILD_GO8, "LR", 0 , 0 };		
+      makeAction(testGame, buildGO8);		
+      assert(getGO8s (testGame, UNI_A) == 1);		
+      assert(getGO8s (testGame, UNI_B) == 0);		
+      assert(getGO8s (testGame, UNI_C) == 0);		
+   }		
+   		
+   // Now go to player B's turn. Player B will build 4 arcs, with a		
+   // campus at each secone one, and then convert them into GO8s		
+   // after creating each campus		
+   throwDice(testGame, 6);		
+   // Making first arc		
+   {		
+      action makeARC = { OBTAIN_ARC, B_START "B", 0 , 0 };		
+      makeAction(testGame, makeARC);		
+   }		
+   // Second arc, then campus then convert to GO8		
+   {		
+      action makeARC = { OBTAIN_ARC, B_START "BL", 0 , 0 };		
+      makeAction(testGame, makeARC);		
+      		
+      action buildCampus = { BUILD_CAMPUS, B_START "BL", 0 , 0 };		
+      makeAction(testGame, buildCampus);		
+      assert(getGO8s (testGame, UNI_A) == 1);		
+      assert(getGO8s (testGame, UNI_B) == 0);		
+      assert(getGO8s (testGame, UNI_C) == 0);		
+   }		
+   // Now converting it to GO8		
+   {		
+      action buildGO8 = { BUILD_GO8, B_START "BL", 0 , 0 };		
+      makeAction(testGame, buildGO8);		
+      assert(getGO8s (testGame, UNI_A) == 1);		
+      assert(getGO8s (testGame, UNI_B) == 1);		
+      assert(getGO8s (testGame, UNI_C) == 0);		
+   }		
+   // Making next 2 arcs		
+   {		
+      action makeARC = { OBTAIN_ARC, B_START "BLR", 0 , 0 };		
+      makeAction(testGame, makeARC);		
+   }		
+   // Second arc, then campus then convert to GO8		
+   {		
+      action makeARC = { OBTAIN_ARC, B_START "BLRL", 0 , 0 };		
+      makeAction(testGame, makeARC);		
+      		
+      action buildCampus = { BUILD_CAMPUS, B_START "BLRL", 0 , 0 };		
+      makeAction(testGame, buildCampus);		
+      assert(getGO8s (testGame, UNI_A) == 1);		
+      assert(getGO8s (testGame, UNI_B) == 1);		
+      assert(getGO8s (testGame, UNI_C) == 0);		
+      		
+      action buildGO8 = { BUILD_GO8, B_START "BLRL", 0 , 0 };		
+      makeAction(testGame, buildGO8);		
+      assert(getGO8s (testGame, UNI_A) == 1);		
+      assert(getGO8s (testGame, UNI_B) == 2);		
+      assert(getGO8s (testGame, UNI_C) == 0);		
+   }		
+   		
+   // Now on to C's turn. C will make 3 arcs, and then a campus		
+   // then convert it to a GO8		
+   throwDice(testGame, 6);		
+   {		
+      action makeARC = { OBTAIN_ARC, C_START "L", 0 , 0 };		
+      makeAction(testGame, makeARC);		
+   }		
+   // Second arc, then campus then convert to GO8		
+   {		
+      action makeARC = { OBTAIN_ARC, C_START "LL", 0 , 0 };		
+      makeAction(testGame, makeARC);		
+      		
+      action buildCampus = { BUILD_CAMPUS, C_START "LL", 0 , 0 };		
+      makeAction(testGame, buildCampus);		
+      assert(getGO8s (testGame, UNI_A) == 1);		
+      assert(getGO8s (testGame, UNI_B) == 2);		
+      assert(getGO8s (testGame, UNI_C) == 0);		
+      		
+      action buildGO8 = { BUILD_GO8, C_START "LL", 0 , 0 };		
+      makeAction(testGame, buildGO8);		
+      assert(getGO8s (testGame, UNI_A) == 1);		
+      assert(getGO8s (testGame, UNI_B) == 2);		
+      assert(getGO8s (testGame, UNI_C) == 1);		
+   }		
+   		
+   // Finally, converting A's primary campus into a GO8		
+   throwDice(testGame, 6);		
+   {		
+      action buildGO8 = { BUILD_GO8, "", 0 , 0 };		
+      makeAction(testGame, buildGO8);		
+      assert(getGO8s (testGame, UNI_A) == 2);		
+      assert(getGO8s (testGame, UNI_B) == 2);		
+      assert(getGO8s (testGame, UNI_C) == 1);		
+   }		
+   		
+   // That's all the tests		
+   disposeGame(testGame);		
+   printf("All tests passed - You are awesome!\n");		
+}		
+
+void testGetARC() {		// void testMakeAction () {
+   printf("testing GetArc.\n");		
+   Game testing;		
+   {		
+      int disciplines[] = DEFAULT_DISCIPLINES;		
+      int dice[] = {8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8};		
+      testing = newGame(disciplines, dice);		
+   }		
+   {		
+      char* startingPaths[6] = { "RB", "RLRLRLRLRLLLB",		
+         "RRLRLLB", "LRLRLRRLRL",		
+         "RRLRLLRLRLLB","LRLRL"} ;		
+      int i = 0;		// }
+      while (i < 6) {		
+         char path[PATH_LIMIT];		
+         		
+         sprintf(path, "%s%s", startingPaths[i], "R"); //adds startingPaths[i] and "R" to path = creates path		
+         assert(getARC(testing, path) == VACANT_ARC);		
+         sprintf(path, "%s%s", startingPaths[i], "B");		
+         assert(getARC(testing, path) == VACANT_ARC);		
+         ++i;		
+      }		
+      		
+      throwDice(testing, 8);		
+      //three paths test 		
+      {		
+         action makeARC = { OBTAIN_ARC, "", 0, 0 };		
+         strcat(makeARC.destination, startingPaths[0]);		
+         i = 0;		
+         while (i < 3) {		
+            strcat(makeARC.destination, "R");		
+            assert(getARC(testing, makeARC.destination) == VACANT_ARC);		
+            makeAction(testing, makeARC);		
+            assert(getARC(testing, makeARC.destination) == ARC_A);		
+            ++i;		
+         }		
+      }		
+      		
+      i = 1;		
+      while (i < 6) {		
+         char path[PATH_LIMIT];		
+         		
+         sprintf(path, "%s%s", startingPaths[i], "R"); //adds startingPaths[i] and "R" to path = creates path		
+         assert(getARC(testing, path) == VACANT_ARC);		
+         sprintf(path, "%s%s", startingPaths[i], "B");		
+         assert(getARC(testing, path) == VACANT_ARC);		
+         ++i;		
+      }		
+      		
+      throwDice(testing, 8);		
+      		
+      //Player B		
+      {		
+         action makeARC = { OBTAIN_ARC, "", 0, 0 };		
+         strcat(makeARC.destination, startingPaths[3]);		
+         i = 0;		
+         while (i < 3) {		
+            sprintf(makeARC.destination, "R");		
+            assert(getARC(testing, makeARC.destination) == VACANT_ARC);		
+            makeAction(testing, makeARC);		
+            assert(getARC(testing, makeARC.destination) == ARC_B);		
+            ++i;		
+         }		
+      }		
+      		
+      throwDice(testing, 8);		
+      //observing other player paths		
+      {		
+         char path[PATH_LIMIT];		
+         sprintf(path, "%s", startingPaths[0]);		
+         i = 0;		
+         while (i < 3) {		
+            strcat(path, "R"); //add's R to path		
+            assert(getARC(testing, path) == ARC_A);		
+            ++i;		
+         }		
+         sprintf(path, "%s", startingPaths[3]);		
+         i = 0;		
+         while (i < 3) {		
+            strcat(path, "R");		
+            assert(getARC(testing, path) == ARC_B);		
+            ++i;		
+         }		
+      }		
+   }		
+   disposeGame(testing);		
+   printf("getArc works.\n");		
 }
