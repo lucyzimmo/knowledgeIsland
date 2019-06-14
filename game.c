@@ -7,8 +7,6 @@
 #define PATH_TO_CAMPUS_B 2 "LRLRLRRLRL"
 #define PATH_TO_CAMPUS_C 1 "LRLRL"
 #define PATH_TO_CAMPUS_C 2 "LRLRLLRLRL"
-#define DEFAULT_EXCHANGE 3
-#define RETRAIN_EXCHANGE 2
 
 
 struct _point {
@@ -31,9 +29,9 @@ struct _game {
     Hex hexes[NUM_Regions];
     int turnNumber; 
     
-   // An 2D array of structs that indicate whether an arc or campus
-   // exists at that index
+   // An 2D array of vertex structs stating location of campuses
    vertex vertices[NUM_COLUMNS][NUM_ROWS];
+   int mostARCs;
 }
 
 typedef struct _hex {
@@ -68,6 +66,9 @@ Game newGame (int discipline[], int dice[]) {
     
     Game g;
     
+    //setting up mostPublications and mostArcs
+    g->mostPublications = NO_ONE;
+    g->mostARCs = NO_ONE;
     // Setting up players 
     int i = 0; 
     while (i <= NUM_UNIS) {
@@ -183,19 +184,19 @@ void makeAction (Game g, action a) {
         
    } else if (a.actionCode == BUILD_CAMPUS) {
       g->vertices[x][y].campus = currentPlayer;
-      g->players[currentPlayer].campuses++;
+      g->players[currentPlayer-1].campuses++;
       // remove studentType
-      g->players[currentPlayer].studentType[STUDENT_BPS]--;
-      g->players[currentPlayer].studentType[STUDENT_BQN]--;
-      g->players[currentPlayer].studentType[STUDENT_MJ]--;
-      g->players[currentPlayer].studentType[STUDENT_MTV]--;
+      g->players[currentPlayer-1].studentType[STUDENT_BPS]--;
+      g->players[currentPlayer-1].studentType[STUDENT_BQN]--;
+      g->players[currentPlayer-1].studentType[STUDENT_MJ]--;
+      g->players[currentPlayer-1].studentType[STUDENT_MTV]--;
    } else if (a.actionCode == BUILD_GO8) {
       g->vertices[x][y].campus = currentPlayer + 3; //add to account for GO8
-      g->players[currentPlayer].campuses--; //remove campus as GO8 replaces campus
-      g->players[currentPlayer].go8s++;
+      g->players[currentPlayer-1].campuses--; //remove campus as GO8 replaces campus
+      g->players[currentPlayer-1].go8s++;
       // remove studentType
-      g->players[currentPlayer].studentType[STUDENT_MJ] -= 2; //to account for cost of GO8
-      g->players[currentPlayer].studentType[STUDENT_MMONEY] -= 3;
+      g->players[currentPlayer-1].studentType[STUDENT_MJ] -= 2; //to account for cost of GO8
+      g->players[currentPlayer-1].studentType[STUDENT_MMONEY] -= 3;
 
    } else if (a.actionCode == OBTAIN_ARC) {      
       // get the correct arc based on direction
@@ -211,51 +212,58 @@ void makeAction (Game g, action a) {
       }
       
       // add arc to player
-      g->players[currentPlayer].arcs++;
+      g->players[currentPlayer-1].arcs++;
       // remove studentType
-      g->players[currentPlayer].studentType[STUDENT_BPS]--;
-      g->players[currentPlayer].studentType[STUDENT_BQN]--;
+      g->players[currentPlayer-1].studentType[STUDENT_BPS]--;
+      g->players[currentPlayer-1].studentType[STUDENT_BQN]--;
+       
+      //calculating MostArcs
+      if (g->mostARCs == 0 || g->players[currentPlayer - 1].arcs > g->players[g->mostARCs - 1].arcs) {
+         g->mostARCs = currentPlayer;
+      }
 
       
    } else if (a.actionCode == OBTAIN_PUBLICATION) {
       g->players[currentPlayer].publications++;
       
-      // remove studentType
-      g->players[currentPlayer].studentType[STUDENT_MJ]--;
-      g->players[currentPlayer].studentType[STUDENT_MTV]--;
-      g->players[currentPlayer].studentType[STUDENT_MMONEY]--;
-   } else if (a.actionCode == OBTAIN_IP_PATENT) {
-      g->players[currentPlayer].ips++;
+      //update mostPublications
+      if (g->mostPublications == 0 || g->players[currentPlayer - 1].publications > g->players[g->mostPublications - 1].publications) {
+         g->mostPublications = currentPlayer;
+      }
       
       // remove studentType
-      g->players[currentPlayer].studentType[STUDENT_MJ]--;
-      g->players[currentPlayer].studentType[STUDENT_MTV]--;
-      g->players[currentPlayer].studentType[STUDENT_MMONEY]--;
+      g->players[currentPlayer-1].studentType[STUDENT_MJ]--;
+      g->players[currentPlayer-1].studentType[STUDENT_MTV]--;
+      g->players[currentPlayer-1].studentType[STUDENT_MMONEY]--;
+   } else if (a.actionCode == OBTAIN_IP_PATENT) {
+      g->players[currentPlayer-1].ips++;
+      
+      // remove studentType
+      g->players[currentPlayer-1].studentType[STUDENT_MJ]--;
+      g->players[currentPlayer-1].studentType[STUDENT_MTV]--;
+      g->players[currentPlayer-1].studentType[STUDENT_MMONEY]--;
    } else if (a.actionCode == RETRAIN_STUDENTS) {
       int rate = getExchangeRate(g, currentPlayer, a.disciplineFrom, a.disciplineTo);
-      g->players[currentPlayer].studentType[a.disciplineFrom] -= rate;
-      g->players[currentPlayer].studentType[a.disciplineTo] += 1;
+      g->players[currentPlayer-1].studentType[a.disciplineFrom] -= rate;
+      g->players[currentPlayer-1].studentType[a.disciplineTo] += 1;
    }
 }
-
-int getExchangeRate (Game g, int player, int disciplineFrom, int disciplineTo) {
-   int exchangerate = DEFAULT_EXCHANGE; //checks if campuses are on retrain areas, if they are sets it lower
-   if (((getCampus(g,"R") == player) ||
-    (getCampus(g,"RR") == player)) && (disciplineFrom == STUDENT_MTV)) {
-      exchangerate = RETRAIN_EXCHANGE;
-   } else if (((getCampus(g,"LL") == player) 
-      || (getCampus(g,"LLL") == player)) && (disciplineFrom == STUDENT_MMONEY)) {
-      exchangerate = RETRAIN_EXCHANGE;
-   } else if (((getCampus(g,"RRRLRLRLR") == player)
-    || (getCampus(g,"RRRLRLRLRL") == player)) && (disciplineFrom==STUDENT_BPS)) {
-      exchangerate = RETRAIN_EXCHANGE;
-   } else if (((getCampus(g,"LLLLRLRLRL") == player)
-    || (getCampus(g,"LLLLRLRLRLR") == player)) && (disciplineFrom == STUDENT_MJ)) {
-      exchangerate = RETRAIN_EXCHANGE;
-   } else if (((getCampus(g,"RRRLRR") == player) 
-      || (getCampus(g,"RRRLRRR") == player)) && (disciplineFrom == STUDENT_BQN)){
-      exchangerate = RETRAIN_EXCHANGE;
-   }
-   return exchangerate;
+int getPublications(Game g, int player) {
+   int publications = g->players[player-UNI_A].publications;
+   return publications;
 }
 
+int getStudents(Game g, int player, int discipline) {
+    int studentAmount = g->players[player-UNI_A].students[discipline];
+    return studentAmount;
+}
+
+int getMostARCs(Game g) {
+    return g->mostARCs;
+  
+}
+
+int getMostPublications(Game g) {
+    return g->mostARCs;
+  
+}
