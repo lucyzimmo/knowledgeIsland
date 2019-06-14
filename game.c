@@ -123,8 +123,27 @@ Game newGame (int discipline[], int dice[]) {
     g->hexes[16]->borderingHexes = {NULL, NULL, NULL, g->hexes[17], g->hexes[13], g->hexes[12]};
     g->hexes[17]->borderingHexes = {g->hexes[16], NULL, NULL, g->hexes[18], g->hexes[14], g->hexes[13]};
     g->hexes[18]->borderingHexes = {g->hexes[17], NULL, NULL, NULL, g->hexes[15], g->hexes[14]};
-
-    return g;
+    
+    int x = 0;
+    while (x < NUM_COLUMNS) {
+      int y = 0;
+      while (y < NUM_ROWS) {
+         g->vertices[x][y].arcV = VACANT_ARC;
+         g->vertices[x][y].arcH = VACANT_ARC;
+         g->vertices[x][y].campus = VACANT_VERTEX;
+         y++;
+      }
+      x++;
+   }
+   // then initialize the starting campuses
+   g->vertices[2][10].campus = CAMPUS_A;
+   g->vertices[3][0].campus = CAMPUS_A;
+   g->vertices[0][7].campus = CAMPUS_B;
+   g->vertices[5][3].campus = CAMPUS_B;
+   g->vertices[0][2].campus = CAMPUS_C;
+   g->vertices[5][8].campus = CAMPUS_C;
+   
+   return g;
 }
 
 int getIPs(Game g, int player) {
@@ -159,7 +178,7 @@ void makeAction (Game g, action a) {
    int direction = 0;
    
    if (a.actionCode == PASS) {
-        //idek
+        
    } else if (a.actionCode == BUILD_CAMPUS) {
       g->vertices[x][y].campus = currentPlayer;
       g->players[currentPlayer].campuses++;
