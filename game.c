@@ -32,6 +32,7 @@ struct _game {
    // An 2D array of vertex structs stating location of campuses
    vertex vertices[NUM_COLUMNS][NUM_ROWS];
    int mostARCs;
+   int mostPublications;
 }
 
 typedef struct _hex {
@@ -264,6 +265,21 @@ int getMostARCs(Game g) {
 }
 
 int getMostPublications(Game g) {
-    return g->mostARCs;
-  
+    return g->mostPublications; 
+}
+
+// return the current turn number of the game -1,0,1, ..
+int getTurnNumber (Game g) {
+    return g->turnNumber;    
+}
+
+// return the player id of the player whose turn it is 
+// the result of this function is NO_ONE during Terra Nullis
+int getWhoseTurn (Game g) {
+    if (turnNumber == -1) {
+        int returnVal = 0;
+    } else {
+        int returnVal = (getTurnNumber (g) + 1) % NUM_UNIS;
+    }
+    return returnVal;
 }
