@@ -32,6 +32,7 @@ struct _game {
    // exists at that index
    vertex vertices[NUM_COLUMNS][NUM_ROWS];
 }
+
 typedef struct _hex {
     int hexIndex
     int diceValue;
