@@ -14,12 +14,22 @@ struct _point {
     int vertexIndex;
 }* Point;
 
+typedef struct _vertex {
+   //Stores the arc north of the vertex.
+   int arcV;
+   //Stores the arc east of the vertex.
+   int arcH;
+   //Stores the campus on the vertex.
+   int campus;
+} vertex;
+
 struct _game {
     Player players[NUM_UNIS];
     Hex hexes[NUM_Regions];
     int turnNumber; 
 }
 typedef struct _hex {
+    int hexIndex
     int diceValue;
     int student;
     int ARCs[NUM_SIDES_ON_HEX];
