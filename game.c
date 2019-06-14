@@ -8,6 +8,7 @@
 #define PATH_TO_CAMPUS_C 1 "LRLRL"
 #define PATH_TO_CAMPUS_C 2 "LRLRLLRLRL"
 
+
 struct _point {
     int hexIndex;
     int ARCIndex;
