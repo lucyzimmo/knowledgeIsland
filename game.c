@@ -275,3 +275,58 @@ int getCampuses (Game g, int player){
    return campuses;
 }
 
+void throwDice (Game g, int diceScore) {
+   g->turnNumber++;
+   
+ 
+   int regionX[] = { 0,0,0, 1,1,1,1, 2,2,2,2,2, 3,3,3,3, 4,4,4 };
+   int regionY[] = { 6,4,2, 7,5,3,1, 8,6,4,2,0, 7,5,3,1, 6,4,2 };
+   
+   // the campuses adjacent to a region with position (x, y) are
+   // the campuses (x', y') such that x' = x or x+1 and y' = y, y+1 or y+2
+   int regionID = 0;
+   while (regionID < NUM_REGIONS) {
+      if (g->dice[regionID] == diceScore) {
+         // give resources to the adjacent campuses
+         int studentType = g->discipline[regionID];
+         int campusX = regionX[regionID];
+         while (campusX <= regionX[regionID] + 1) {
+            int campusY = regionY[regionID];
+            while (campusY <= regionY[regionID] + 2) {
+               int campusType = g->vertices[campusX][campusY].campus;
+
+               if (campusType == 1) {
+                  g->players[0].students[studentType] += 1;
+               } else if (campusType == 2) {
+                  g->players[1].students[studentType] += 1;
+               } else if (campusType == 3) {
+                  g->players[2].students[studentType] += 1;
+               } else if (campusType == 4) {
+                  g->players[0].students[studentType] += 2;
+               } else if (campusType == 5) {
+                  g->players[1].students[studentType] += 2;
+               } else if (campusType == 6) {
+                  g->players[2].students[studentType] += 2;
+               }
+               campusY++;
+            }
+            campusX++;
+         }
+      }
+      regionID++;
+   }
+   
+   // if a 7 was rolled, convert all MTV and MMONEY to THD
+   if (diceScore == 7) {
+      int playerID = 0;
+      while (playerID < NUM_UNIS) {
+         g->players[playerID].students[STUDENT_THD] += g->players[playerID].students[STUDENT_MTV];
+         g->players[playerID].students[STUDENT_MTV] = 0;
+         g->players[playerID].students[STUDENT_THD] += g->players[playerID].students[STUDENT_MMONEY];
+         g->players[playerID].students[STUDENT_MMONEY] = 0;
+         playerID++;
+      }
+   }
+}
+
+
