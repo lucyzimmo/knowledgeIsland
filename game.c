@@ -1,28 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "game.h"
-
 #define WINNING_KPI_POINTS 120
-#define ARC_KPI_POINTS 2
-#define CAMPUS_KPI_POINTS 10
-#define GO8_KPI_POINTS 20
-#define IP_KPI_POINTS 10
-#define MOST_ARCS_KPI_POINTS 10
-#define MOST_PUBLICATIONS_KPI_POINTS 10
-
 #define NUM_SIDES_ON_HEX 6
-#define NUM_DISCIPLINES 9
-
-#define PATH_TO_CAMPUS_A1 ""
-#define PATH_TO_CAMPUS_A2 "RLRLRLRLRLL"
-#define PATH_TO_CAMPUS_B1 "RRLRL"
-#define PATH_TO_CAMPUS_B2 "LRLRLRRLRL"
-#define PATH_TO_CAMPUS_C1 "LRLRL"
-#define PATH_TO_CAMPUS_C2 "LRLRLLRLRL"
-
-#define DEFAULT_EXCHANGE 3
-#define RETRAIN_EXCHANGE 2
+#define NUM_DISCIPLINES 6
+#define PATH_TO_CAMPUS_A 1 ""
+#define PATH_TO_CAMPUS_A 2 "RLRLRLRLRLL"
+#define PATH_TO_CAMPUS_B 1 "RRLRL"
+#define PATH_TO_CAMPUS_B 2 "LRLRLRRLRL"
+#define PATH_TO_CAMPUS_C 1 "LRLRL"
+#define PATH_TO_CAMPUS_C 2 "LRLRLLRLRL"
+ 
 
 struct _point {
     int hexIndex;
@@ -47,7 +32,6 @@ struct _game {
    // An 2D array of vertex structs stating location of campuses
    vertex vertices[NUM_COLUMNS][NUM_ROWS];
    int mostARCs;
-   int mostPublications;
 }
 
 typedef struct _hex {
@@ -196,6 +180,8 @@ void makeAction (Game g, action a) {
    int y = 0;
    int direction = 0;
    
+   assert(a.actionCode != START_SPINOFF);
+   
    if (a.actionCode == PASS) {
         
    } else if (a.actionCode == BUILD_CAMPUS) {
@@ -280,26 +266,12 @@ int getMostARCs(Game g) {
 }
 
 int getMostPublications(Game g) {
-    return g->mostPublications; 
+    return g->mostARCs;
+  
 }
 
-// return the current turn number of the game -1,0,1, ..
-int getTurnNumber (Game g) {
-    return g->turnNumber;    
+int getCampuses (Game g, int player){
+   int campuses = g->players[player-UNI_A].campuses;
+   return campuses;
 }
 
-// return the player id of the player whose turn it is 
-// the result of this function is NO_ONE during Terra Nullis
-int getWhoseTurn (Game g) {
-    if (turnNumber == -1) {
-        int returnVal = 0;
-    } else {
-        int returnVal = (getTurnNumber (g) + 1) % NUM_UNIS;
-    }
-    return returnVal;
-}
-
-// return the number of GO8 campuses the specified player currently has
-int getGO8s (Game g, int player) {
-    return g->players[player]->GO8s;
-}
