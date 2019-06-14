@@ -76,64 +76,18 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
-// void testMakeAction () {
-
-// }
- 
-// This also tests "getWhoseTurn" and "getTurnNumber"
-void testThrowDice () {
-    int disciplines[NUM_REGIONS] = DEFAULT_DISCIPLINES;
-    int dice[NUM_REGIONS] = DEFAULT_DICE;
-    Game testGame = newGame(disciplines, dice);
-
-    assert (getWhoseTurn (testGame) == 0);
-    assert (getTurnNumber (testGame) == -1);
-    throwDice(testGame, 6);
-    assert (getWhoseTurn (testGame) == 1);
-    assert (getTurnNumber (testGame) == 0);
-    throwDice(testGame, 2);
-    assert (getWhoseTurn (testGame) == 2);
-    assert (getTurnNumber (testGame) == 1);
-    throwDice(testGame, 3);
-    assert (getWhoseTurn (testGame) == 3);
-    assert (getTurnNumber (testGame) == 2);
-    throwDice(testGame, 2);
-    assert (getWhoseTurn (testGame) == 1);
-    assert (getTurnNumber (testGame) == 3);
-
-    disposeGame (testGame);
-}
-
-void testGetWhoseTurn () {
-    int disciplines[NUM_REGIONS] = DEFAULT_DISCIPLINES;
-    int dice[NUM_REGIONS] = DEFAULT_DICE;
-    Game testGame = newGame(disciplines, dice);
-
-    assert (getWhoseTurn (testGame) == NO_ONE);
-    throwDice (testGame, 3);
-    int currentTurn = getWhoseTurn (testGame);
-    throwDice (testGame, 1);
-    assert (getWhoseTurn (testGame) == (currentTurn + 1) % NUM_UNIS);
-    throwDice (testGame, 2);
-    assert (getWhoseTurn (testGame) == (currentTurn + 2) % NUM_UNIS);
-    throwDice (testGame, 2);
-    assert (getWhoseTurn (testGame) == (currentTurn + 3) % NUM_UNIS);
-
-    disposeGame (testGame);
-}
-
-// Also tests getARCs
 void testGetMostARCs () {
     int disciplines[NUM_REGIONS] = DEFAULT_DISCIPLINES;
     int dice[NUM_REGIONS] = DEFAULT_DICE;
     Game testGame = newGame(disciplines, dice);    
+    fillResources (testGame);
 
     assert (getMostARCs (testGame) == NO_ONE);
     assert (getARCs (testGame, UNI_A) == 0);
 
     action createARC;
     createARC.actionCode = OBTAIN_ARC;
-    createARC.path = {'L'}; 
+    createARC.path = {"L"}; 
 
     makeAction (testGame, createARC);
     int currentMostARCs = getWhoseTurn (testGame);
@@ -142,9 +96,9 @@ void testGetMostARCs () {
 
     throwDice (testGame, 3);
 
-    createARC.path = {'LR'};
+    createARC.path = {"LR"};
     makeAction (testGame, createARC);
-    createARC.path = {'LRL'};
+    createARC.path = {"LRL"};
     makeAction (testGame, createARC);
     int currentMostARCs = getWhoseTurn (testGame);
     assert (getMostARCs (testGame) == currentMostARCs);
@@ -153,14 +107,14 @@ void testGetMostARCs () {
 
     throwDice (testGame, 2);
 
-    createARC.path = {'R'};
+    createARC.path = {"R"};
     makeAction (testGame, createARC);
-    createARC.path = {'RL'};
+    createARC.path = {"RL"};
     makeAction (testGame, createARC);
     assert (getMostARCs (testGame) == currentMostARCs);
     assert (getARCs (testGame, getWhoseTurn (testGame)) == 2);
 
-    createARC.path = {'RLR'};
+    createARC.path = {"RLR"};
     makeAction (testGame, createARC);
     assert (getMostARCs (testGame) == getWhoseTurn (testGame));
     assert (getARCs (testGame, getWhoseTurn (testGame)) == 3);
@@ -172,7 +126,9 @@ void testGetMostARCs () {
 
 // Also tests getPublications
 void testgetMostPublications () {
-    Game testGame = newGame(disciplines, dice);    
+    Game testGame = newGame(disciplines, dice); 
+    fillResources ();
+
     assert (getMostPublications (testGame) == NO_ONE);
     assert (getPublications (testGame, UNI_A) == 0);
 
@@ -235,26 +191,10 @@ void testGetDiscipline () {
     dice[] = TEST_DICE;
     Game testGame2 = newGame(disciplines, dice);  
 
-    assert (getDiscipline (testGame2, 0) == DEFAULT_DISCIPLINES[0]);
-    assert (getDiscipline (testGame2, 1) == DEFAULT_DISCIPLINES[1]);
-    assert (getDiscipline (testGame2, 2) == DEFAULT_DISCIPLINES[2]);
-    assert (getDiscipline (testGame2, 3) == DEFAULT_DISCIPLINES[3]);
-    assert (getDiscipline (testGame2, 4) == DEFAULT_DISCIPLINES[4]);
-    assert (getDiscipline (testGame2, 5) == DEFAULT_DISCIPLINES[5]);
-    assert (getDiscipline (testGame2, 6) == DEFAULT_DISCIPLINES[6]);
-    assert (getDiscipline (testGame2, 7) == DEFAULT_DISCIPLINES[7]);
-    assert (getDiscipline (testGame2, 9) == DEFAULT_DISCIPLINES[9]);
-    assert (getDiscipline (testGame2, 10) == DEFAULT_DISCIPLINES[10]);
-    assert (getDiscipline (testGame2, 11) == DEFAULT_DISCIPLINES[11]);
-    assert (getDiscipline (testGame2, 12) == DEFAULT_DISCIPLINES[12]);
-    assert (getDiscipline (testGame2, 13) == DEFAULT_DISCIPLINES[13]);
-    assert (getDiscipline (testGame2, 14) == DEFAULT_DISCIPLINES[14]);
-    assert (getDiscipline (testGame2, 15) == DEFAULT_DISCIPLINES[15]);
-    assert (getDiscipline (testGame2, 16) == DEFAULT_DISCIPLINES[16]);
-    assert (getDiscipline (testGame2, 17) == DEFAULT_DISCIPLINES[17]);
-    assert (getDiscipline (testGame2, 18) == DEFAULT_DISCIPLINES[18]);
-    assert (getDiscipline (testGame2, 19) == DEFAULT_DISCIPLINES[19]);
-
+    while (i < 20) {
+        assert (getDiscipline (testGame2, i) == DEFAULT_DISCIPLINES[i]);
+        i ++;
+    }
     disposeGame (testGame2);
 
 }
@@ -319,7 +259,8 @@ void testGetDiceValue () {
 void testGetCampus () {
     int disciplines[NUM_REGIONS] = DEFAULT_DISCIPLINES;
     int dice[NUM_REGIONS] = DEFAULT_DICE;
-    Game testGame = newGame(disciplines, dice);    
+    Game testGame = newGame(disciplines, dice); 
+    fillResources (testGame)   
 
     path currentPoint = "R";
     assert (getCampus (testGame, currentPoint) == VACANT_VERTEX);
@@ -367,17 +308,234 @@ void testGetStudents () {
     assert (getStudents (testGame, UNI_A, STUDENT_MTV) == 1);
     assert (getStudents (testGame, UNI_A, STUDENT_MMONEY) == 1);
 
-    throwDice (testGame, 10);
+    assert (getStudents (testGame, UNI_B, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_B, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_B, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MMONEY) == 1);
+
+    assert (getStudents (testGame, UNI_C, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_C, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MMONEY) == 1);
+
+    throwDice (testGame, 11);
 
     assert (getStudents (testGame, UNI_A, STUDENT_THD) == 0);
     assert (getStudents (testGame, UNI_A, STUDENT_BPS) == 3);
     assert (getStudents (testGame, UNI_A, STUDENT_BQN) == 3);
     assert (getStudents (testGame, UNI_A, STUDENT_MJ) == 1);
     assert (getStudents (testGame, UNI_A, STUDENT_MT) == 1);
-    assert (getStudents (testGame, UNI_A, STUDENT_MTV) == 1);
-    assert (getStudents (testGame, UNI_A, STUDENT_MMONEY) == 2);
+    assert (getStudents (testGame, UNI_A, STUDENT_MTV) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MMONEY) == 1);
+
+    assert (getStudents (testGame, UNI_B, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_B, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_B, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MMONEY) == 1);
+
+    assert (getStudents (testGame, UNI_C, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_C, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MMONEY) == 1);
+
+    while (getWhoseTurn (testGame) != UNI_B) {
+        throwDice (testGame, 12);
+    }
+    
+    assert (getWhoseTurn (testGame) == UNI_B);    
+
+    action createARC;
+    createARC.actionCode = OBTAIN_ARC;
+
+// This path is invalid!
+    createARC.path = {"LLRLRR"};
+    makeAction (createARC);
+// This path is invalid!
+    createARC.path = {"LLRLRRL"};
+    makeAction (createARC);
+
+    action createCampus;
+    createCampus.actionCode = OBTAIN_CAMPUS;
+// This path is invalid!
+    createCampus.path = {"LLRLRRL"}
+    makeAction (createCampus);
+
+    assert (getCampuses (testGame, UNI_B) == 3);
+    assert (getARCs (testGame, UNI_B) == 2);
+
+    assert (getStudents (testGame, UNI_A, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_A, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MJ) == 2);
+    assert (getStudents (testGame, UNI_A, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_A, STUDENT_MTV) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MMONEY) == 1);
+
+    assert (getStudents (testGame, UNI_B, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BPS) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BQN) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MJ) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MT) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MMONEY) == 1);
+
+    assert (getStudents (testGame, UNI_C, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_C, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MMONEY) == 1);
+
+    throwDice (testGame, 6);
+
+    assert (getWhoseTurn (testGame) == UNI_C);
+
+    assert (getStudents (testGame, UNI_A, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_A, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MJ) == 2);
+    assert (getStudents (testGame, UNI_A, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_A, STUDENT_MTV) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MMONEY) == 1);
+
+    assert (getStudents (testGame, UNI_B, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BPS) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BQN) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MT) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MMONEY) == 1);
+
+    assert (getStudents (testGame, UNI_C, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_C, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MMONEY) == 1);
+
+    throwDice (10)
+    assert (getWhoseTurn (testGame) == UNI_A);
+    throwDice (10)
+    assert (getWhoseTurn (testGame) == UNI_B);
+    throwDice (6)
+    assert (getWhoseTurn (testGame) == UNI_C);
+
+    while (getWhoseTurn (testGame) != UNI_B) {
+        throwDice (testGame, 12);
+    }
+    
+    assert (getWhoseTurn (testGame) == UNI_B);  
+
+    assert (getStudents (testGame, UNI_A, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_A, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MJ) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_A, STUDENT_MTV) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MMONEY) == 1);
+
+    assert (getStudents (testGame, UNI_B, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BPS) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BQN) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MJ) == 2);
+    assert (getStudents (testGame, UNI_B, STUDENT_MT) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MMONEY) == 3);
+
+    assert (getStudents (testGame, UNI_C, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_C, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MMONEY) == 1);
+
+    action createGO8;
+    createGO8.actionCode = BUILD_GO8;
+// This path is invalid!
+    createGO8.path = {"LLRLRRL"}
+
+    makeAction (testGame, createGO8);
+
+    assert (getStudents (testGame, UNI_A, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_A, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MJ) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_A, STUDENT_MTV) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MMONEY) == 1);
+
+    assert (getStudents (testGame, UNI_B, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BPS) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BQN) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MJ) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MT) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MMONEY) == 0);
+
+    assert (getStudents (testGame, UNI_C, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_C, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MMONEY) == 1);
+
+    assert (getGO8s (testGame, UNI_B));
+
+    throwDice (9);
+
+    assert (getStudents (testGame, UNI_A, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_A, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MJ) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_A, STUDENT_MTV) == 3);
+    assert (getStudents (testGame, UNI_A, STUDENT_MMONEY) == 1);
+
+    assert (getStudents (testGame, UNI_B, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BPS) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_BQN) == 2);
+    assert (getStudents (testGame, UNI_B, STUDENT_MJ) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MT) == 0);
+    assert (getStudents (testGame, UNI_B, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_B, STUDENT_MMONEY) == 0);
+
+    assert (getStudents (testGame, UNI_C, STUDENT_THD) == 0);
+    assert (getStudents (testGame, UNI_C, STUDENT_BPS) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_BQN) == 3);
+    assert (getStudents (testGame, UNI_C, STUDENT_MJ) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MT) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MTV) == 1);
+    assert (getStudents (testGame, UNI_C, STUDENT_MMONEY) == 1);
 
     disposeGame (testGame);
+}
+
+void fillResources (Game testGame) {
+    while (i <= 12) {
+        if (i != 7) {
+            while (j < 30) {
+                throwDice (testGame, i);
+                j ++;
+            }
+        }
+        i ++;
+    }
 }
 
 void isLegalAction() {		
