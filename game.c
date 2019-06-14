@@ -1,16 +1,34 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "game.h"
+
 #define WINNING_KPI_POINTS 120
+#define ARC_KPI_POINTS 2
+#define CAMPUS_KPI_POINTS 10
+#define GO8_KPI_POINTS 20
+#define IP_KPI_POINTS 10
+#define MOST_ARCS_KPI_POINTS 10
+#define MOST_PUBLICATIONS_KPI_POINTS 10
+
 #define NUM_SIDES_ON_HEX 6
-#define NUM_DISCIPLINES 6
-#define PATH_TO_CAMPUS_A 1 ""
-#define PATH_TO_CAMPUS_A 2 "RLRLRLRLRLL"
-#define PATH_TO_CAMPUS_B 1 "RRLRL"
-#define PATH_TO_CAMPUS_B 2 "LRLRLRRLRL"
-#define PATH_TO_CAMPUS_C 1 "LRLRL"
-#define PATH_TO_CAMPUS_C 2 "LRLRLLRLRL"
- 
+#define NUM_DISCIPLINES 9
+
+#define PATH_TO_CAMPUS_A1 ""
+#define PATH_TO_CAMPUS_A2 "RLRLRLRLRLL"
+#define PATH_TO_CAMPUS_B1 "RRLRL"
+#define PATH_TO_CAMPUS_B2 "LRLRLRRLRL"
+#define PATH_TO_CAMPUS_C1 "LRLRL"
+#define PATH_TO_CAMPUS_C2 "LRLRLLRLRL"
+
+#define DEFAULT_EXCHANGE 3
+#define RETRAIN_EXCHANGE 2
+
+#define NUM_VERTICES 54
+#define NUM_HEXES_AT_POINT 3
 
 struct _point {
-    int hexIndex;
+    int hexIndex[NUM_HEXES_AT_POINT];
     int ARCIndex;
     int vertexIndex;
 }* Point;
@@ -32,6 +50,7 @@ struct _game {
    // An 2D array of vertex structs stating location of campuses
    vertex vertices[NUM_COLUMNS][NUM_ROWS];
    int mostARCs;
+   int mostPublications;
 }
 
 typedef struct _hex {
@@ -45,18 +64,16 @@ typedef struct _hex {
 }*Hex;
 
 typedef struct _player {
-
     int KPIPoints;
-    Path ARCs[];
-    Path campuses[];
-    Path GO8s[];
+    Path ARCs[NUM_VERTICES];
+    Path campuses[NUM_VERTICES];
+    Path GO8s[NUM_VERTICES];
     //sum of each player has
     int arcs;
     int campuses;
     int GO8s;
     int ips;
     int publications;
-
     /// sum of each discipline
     int studentType[NUM_DISCIPLINES]
 } *Player;
@@ -180,8 +197,6 @@ void makeAction (Game g, action a) {
    int y = 0;
    int direction = 0;
    
-   assert(a.actionCode != START_SPINOFF);
-   
    if (a.actionCode == PASS) {
         
    } else if (a.actionCode == BUILD_CAMPUS) {
@@ -266,67 +281,26 @@ int getMostARCs(Game g) {
 }
 
 int getMostPublications(Game g) {
-    return g->mostARCs;
-  
+    return g->mostPublications; 
 }
 
-int getCampuses (Game g, int player){
-   int campuses = g->players[player-UNI_A].campuses;
-   return campuses;
+// return the current turn number of the game -1,0,1, ..
+int getTurnNumber (Game g) {
+    return g->turnNumber;    
 }
 
-void throwDice (Game g, int diceScore) {
-   g->turnNumber++;
-   
- 
-   int regionX[] = { 0,0,0, 1,1,1,1, 2,2,2,2,2, 3,3,3,3, 4,4,4 };
-   int regionY[] = { 6,4,2, 7,5,3,1, 8,6,4,2,0, 7,5,3,1, 6,4,2 };
-   
-   // the campuses adjacent to a region with position (x, y) are
-   // the campuses (x', y') such that x' = x or x+1 and y' = y, y+1 or y+2
-   int regionID = 0;
-   while (regionID < NUM_REGIONS) {
-      if (g->dice[regionID] == diceScore) {
-         // give resources to the adjacent campuses
-         int studentType = g->discipline[regionID];
-         int campusX = regionX[regionID];
-         while (campusX <= regionX[regionID] + 1) {
-            int campusY = regionY[regionID];
-            while (campusY <= regionY[regionID] + 2) {
-               int campusType = g->vertices[campusX][campusY].campus;
-
-               if (campusType == 1) {
-                  g->players[0].students[studentType] += 1;
-               } else if (campusType == 2) {
-                  g->players[1].students[studentType] += 1;
-               } else if (campusType == 3) {
-                  g->players[2].students[studentType] += 1;
-               } else if (campusType == 4) {
-                  g->players[0].students[studentType] += 2;
-               } else if (campusType == 5) {
-                  g->players[1].students[studentType] += 2;
-               } else if (campusType == 6) {
-                  g->players[2].students[studentType] += 2;
-               }
-               campusY++;
-            }
-            campusX++;
-         }
-      }
-      regionID++;
-   }
-   
-   // if a 7 was rolled, convert all MTV and MMONEY to THD
-   if (diceScore == 7) {
-      int playerID = 0;
-      while (playerID < NUM_UNIS) {
-         g->players[playerID].students[STUDENT_THD] += g->players[playerID].students[STUDENT_MTV];
-         g->players[playerID].students[STUDENT_MTV] = 0;
-         g->players[playerID].students[STUDENT_THD] += g->players[playerID].students[STUDENT_MMONEY];
-         g->players[playerID].students[STUDENT_MMONEY] = 0;
-         playerID++;
-      }
-   }
+// return the player id of the player whose turn it is 
+// the result of this function is NO_ONE during Terra Nullis
+int getWhoseTurn (Game g) {
+    if (turnNumber == -1) {
+        int returnVal = 0;
+    } else {
+        int returnVal = (getTurnNumber (g) + 1) % NUM_UNIS;
+    }
+    return returnVal;
 }
 
-
+// return the number of GO8 campuses the specified player currently has
+int getGO8s (Game g, int player) {
+    return g->players[player]->GO8s;
+}
