@@ -27,6 +27,10 @@ struct _game {
     Player players[NUM_UNIS];
     Hex hexes[NUM_Regions];
     int turnNumber; 
+    
+   // An 2D array of structs that indicate whether an arc or campus
+   // exists at that index
+   vertex vertices[NUM_COLUMNS][NUM_ROWS];
 }
 typedef struct _hex {
     int hexIndex
