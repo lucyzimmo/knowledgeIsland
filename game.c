@@ -1,13 +1,28 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "game.h"
+
 #define WINNING_KPI_POINTS 120
+#define ARC_KPI_POINTS 2
+#define CAMPUS_KPI_POINTS 10
+#define GO8_KPI_POINTS 20
+#define IP_KPI_POINTS 10
+#define MOST_ARCS_KPI_POINTS 10
+#define MOST_PUBLICATIONS_KPI_POINTS 10
+
 #define NUM_SIDES_ON_HEX 6
-#define NUM_DISCIPLINES 6
-#define PATH_TO_CAMPUS_A 1 ""
-#define PATH_TO_CAMPUS_A 2 "RLRLRLRLRLL"
-#define PATH_TO_CAMPUS_B 1 "RRLRL"
-#define PATH_TO_CAMPUS_B 2 "LRLRLRRLRL"
-#define PATH_TO_CAMPUS_C 1 "LRLRL"
-#define PATH_TO_CAMPUS_C 2 "LRLRLLRLRL"
- 
+#define NUM_DISCIPLINES 9
+
+#define PATH_TO_CAMPUS_A1 ""
+#define PATH_TO_CAMPUS_A2 "RLRLRLRLRLL"
+#define PATH_TO_CAMPUS_B1 "RRLRL"
+#define PATH_TO_CAMPUS_B2 "LRLRLRRLRL"
+#define PATH_TO_CAMPUS_C1 "LRLRL"
+#define PATH_TO_CAMPUS_C2 "LRLRLLRLRL"
+
+#define DEFAULT_EXCHANGE 3
+#define RETRAIN_EXCHANGE 2
 
 struct _point {
     int hexIndex;
@@ -282,4 +297,9 @@ int getWhoseTurn (Game g) {
         int returnVal = (getTurnNumber (g) + 1) % NUM_UNIS;
     }
     return returnVal;
+}
+
+// return the number of GO8 campuses the specified player currently has
+int getGO8s (Game g, int player) {
+    return g->players[player]->GO8s;
 }
