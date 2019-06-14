@@ -26,6 +26,8 @@ void testgetMostPublications ();
 void testGetDiscipline ();
 void testGetDiceValue ();
 void isLegalAction();
+void testGetARC();
+void testGetGO8s();
 
 int main(int argc, char *argv[]) {
 
@@ -37,6 +39,8 @@ int main(int argc, char *argv[]) {
     testGetDiscipline ();
     testGetDiceValue ();
     isLegalAction();
+    testGetARC();
+    testGetGO8s();
 
     /*Checklist:
     
@@ -403,7 +407,7 @@ void isLegalAction() {
     assert(isLegalAction(testGame, makeGO8));		
     makeAction(testGame, makeGO8);		
 }
-	void testGetGO8s(void) {		
+void testGetGO8s(void) {		
    		
    printf("Begin testGetGO8s test.\n");		
    Game testGame = NULL;		
@@ -565,13 +569,12 @@ void isLegalAction() {
       assert(getGO8s (testGame, UNI_B) == 2);		
       assert(getGO8s (testGame, UNI_C) == 1);		
    }		
-   		
-   // That's all the tests		
+   				
    disposeGame(testGame);		
    printf("All tests passed - You are awesome!\n");		
 }		
 
-void testGetARC() {		// void testMakeAction () {
+void testGetARC() {		
    printf("testing GetArc.\n");		
    Game testing;		
    {		
