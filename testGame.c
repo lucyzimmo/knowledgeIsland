@@ -820,3 +820,24 @@ void testGetARC() {
    disposeGame(testing);		
    printf("getArc works.\n");		
 }
+
+int getExchangeRate (Game g, int player, int disciplineFrom, int disciplineTo) {
+   int exchangerate = DEFAULT_EXCHANGE; //checks if campuses are on retrain areas, if they are sets it lower
+   if (((getCampus(g,"R") == player) ||
+    (getCampus(g,"RR") == player)) && (disciplineFrom == STUDENT_MTV)) {
+      exchangerate = RETRAIN_EXCHANGE;
+   } else if (((getCampus(g,"LL") == player) 
+      || (getCampus(g,"LLL") == player)) && (disciplineFrom == STUDENT_MMONEY)) {
+      exchangerate = RETRAIN_EXCHANGE;
+   } else if (((getCampus(g,"RRRLRLRLR") == player)
+    || (getCampus(g,"RRRLRLRLRL") == player)) && (disciplineFrom==STUDENT_BPS)) {
+      exchangerate = RETRAIN_EXCHANGE;
+   } else if (((getCampus(g,"LLLLRLRLRL") == player)
+    || (getCampus(g,"LLLLRLRLRLR") == player)) && (disciplineFrom == STUDENT_MJ)) {
+      exchangerate = RETRAIN_EXCHANGE;
+   } else if (((getCampus(g,"RRRLRR") == player) 
+      || (getCampus(g,"RRRLRRR") == player)) && (disciplineFrom == STUDENT_BQN)){
+      exchangerate = RETRAIN_EXCHANGE;
+   }
+   return exchangerate;
+}
