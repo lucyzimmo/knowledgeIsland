@@ -465,3 +465,29 @@ void throwDice (Game g, int diceScore){
       }
    }
 }
+int isLegalAction(Game g, action a) {
+    int isLegal;
+    int whoseTurn = getWhoseTurn(g);
+    if (whoseTurn != NO_ONE) {
+      if (a.actionCode == PASS) {
+         isLegal = 1;
+      } else if (a.actionCode == BUILD_CAMPUS) {
+         //special set of variables for this function 
+         int x, y, dir;
+         int checkConnectingArc; 
+         // first check if resources are there
+         if ((g->players[whoseTurn - 1].students[STUDENT_BPS] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_BQN] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_MJ ] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_MTV] >= 1)) {
+            //then check if the path is legal and campus is not there
+            if (g->vertices[x][y].campus == VACANT_VERTEX) {
+                 if ((g->vertices[x][y].arcH == whoseTurn) || (g->vertices[x][y].arcV == whoseTurn) || ((x > 0) && (g->vertices[x-1][y].arcH == whoseTurn)) || ((y > 0) && (g->vertices[x][y-1].arcV == whoseTurn))) {
+                    //make sure there are no campuses around location and that the arc connecting location is valid
+                      checkConnectingArc = ((x + y) % 2) * 2 - 1;
+                       if (((y == 10) || (g->vertices[x][y+1].campus == VACANT_VERTEX)) && ((y ==  0) || (g->vertices[x][y-1].campus == VACANT_VERTEX)) && ((checkConnectingArc ==  1) || (x == 10) || (g->vertices[x+1][y].campus == VACANT_VERTEX)) && ((checkConnectingArc == -1) || (x ==  0) || (g->vertices[x-1][y].campus == VACANT_VERTEX))) {
+                          //finally
+                          isLegal = 1;
+                       }
+                 }
+            }
+         }
+      }
+    return isLegal;
