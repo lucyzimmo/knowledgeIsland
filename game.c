@@ -467,7 +467,7 @@ void throwDice (Game g, int diceScore){
 }
 int isLegalAction(Game g, action a) {
     int isLegal;
-    int whoseTurn = getWhoseTurn(g);
+    int whoseTurn = getwhoseTurn(g);
     if (whoseTurn != NO_ONE) {
       if (a.actionCode == PASS) {
          isLegal = 1;
@@ -495,5 +495,42 @@ int isLegalAction(Game g, action a) {
       } else if (a.actionCode == START_SPINOFF) {
          isLegal = (g->players[whoseTurn - 1].students[STUDENT_MJ] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_MMONEY] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_MTV] >= 1);
          //no need to check if obtain publication or obtain ip patent because always true
+      } else if (a.actionCode == OBTAIN_ARC) {
+          //If they have the resources. 
+          if ((g->players[whoseTurn - 1].students[STUDENT_BPS] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_BQN] >= 1)) {
+              //have to add to paths so we can lead them to adjacent arcs
+              char adj[4][PATH_LIMIT + 2];
+              sprintf(adj[0], "%sL", a.destination);
+              sprintf(adj[1], "%sR", a.destination);
+              sprintf(adj[2], "%sBL", a.destination);
+              sprintf(adj[3], "%sBR", a.destination);
+              
+              //have to add to paths to account for two campuses at end of an arc
+              char ends[2][PATH_LIMIT+1];
+              sprintf(ends[0], "%s", a.destination);
+              sprintf(ends[1], "%sB", a.destination);
+              
+              //now check if arc is empty
+              if (getARC(g, a.destination) == NO_ONE) {
+                  //if they own a campus at end of an edge
+                  if (getCampus(g, ends[0]) == whoseTurn || getCampus(g, ends[0]) == whoseTurn + 3 || getCampus(g, ends[1]) == whoseTurn || getCampus(g, ends[1]) == whoseTurn + 3) {
+                       // it's legal
+                      isLegal = 1;
+                  }
+                  //or if they own a path at end of edge and no owners of a campus there exist
+                  if ((getARC(g, adj[0]) == whoseTurn) || (getARC(g, adj[1]) == whoseTurn)) {
+                    if (getCampus(g, ends[0]) == NO_ONE) {
+                    isLegal = 1;
+                    }
+                  }
+                  if ((getARC(g, adj[2]) == whoseTurn) || (getARC(g, adj[3]) == whoseTurn)) {
+                       if (getCampus(g, ends[1]) == NO_ONE) {
+                       isLegal = 1;
+                       }
+                  }
+              }
+          }
       }
+    }
     return isLegal;
+}
