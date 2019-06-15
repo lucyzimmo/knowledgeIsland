@@ -51,6 +51,7 @@ struct _game {
    vertex vertices[NUM_COLUMNS][NUM_ROWS];
    int mostARCs;
    int mostPublications;
+   int dice[NUM_REGIONS]; //dice number for each region 
 }
 
 typedef struct _hex {
@@ -144,7 +145,24 @@ Game newGame (int discipline[], int dice[]) {
     g->hexes[17]->borderingHexes = {g->hexes[16], NULL, NULL, g->hexes[18], g->hexes[14], g->hexes[13]};
     g->hexes[18]->borderingHexes = {g->hexes[17], NULL, NULL, NULL, g->hexes[15], g->hexes[14]};
     
-    int x = 0;
+
+   //initialize students and players
+   int playerID = 0;
+   while (playerID < NUM_UNIS) {
+      g->players[playerID].students[STUDENT_THD] = 0;
+      g->players[playerID].students[STUDENT_BPS] = 3;
+      g->players[playerID].students[STUDENT_BQN] = 3;
+      g->players[playerID].students[STUDENT_MJ] = 1;
+      g->players[playerID].students[STUDENT_MTV] = 1;
+      g->players[playerID].students[STUDENT_MMONEY] = 1;
+      g->players[playerID].campuses = 2;
+      g->players[playerID].go8s = 0;
+      g->players[playerID].arcs = 0;
+      g->players[playerID].publications = 0;
+      g->players[playerID].patents = 0;
+      playerID++;
+   }
+   int x = 0;
     while (x < NUM_COLUMNS) {
       int y = 0;
       while (y < NUM_ROWS) {
@@ -200,7 +218,8 @@ void makeAction (Game g, action a) {
    if (a.actionCode == PASS) {
         
    } else if (a.actionCode == BUILD_CAMPUS) {
-      g->vertices[x][y].campus = currentPlayer;
+      //0,0 is okay because in line below we are setting new position for current player
+      g->vertices[x][y].campus = currentPlayer; 
       g->players[currentPlayer-1].campuses++;
       // remove studentType
       g->players[currentPlayer-1].studentType[STUDENT_BPS]--;
