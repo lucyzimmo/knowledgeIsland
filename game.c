@@ -408,3 +408,60 @@ int getARC(Game g, path pathToEdge) {
     Point ARCPoint = pathToPoint (pathToEdge);
     return g->hexes[ARCPoint->hexIndexes[0]]->ARCs[ARCPoint->ARCIndex];
 }
+void throwDice (Game g, int diceScore){
+   g->currentTurn++; //increases current turn
+   
+   // need to check which dice scores correspond to which region
+   
+   // below is an array for the hexes coordinates -> will each hex classify based on vertexes at bottom left
+   // thus this array stores the x and y coordinates of the vertex to the bottom left of
+   // the region and represents each region e.g. 0,6 represents one hex
+   int hexX[] = { 0,0,0, 1,1,1,1, 2,2,2,2,2, 3,3,3,3, 4,4,4 };
+   int hexY[] = { 6,4,2, 7,5,3,1, 8,6,4,2,0, 7,5,3,1, 6,4,2 };
+   
+   // campuses around the campus(coordinatesa: x,y) have coordinates:x/x-1, y/y-1/y-2
+   int regionNum = 0;
+   while (regionNum < NUM_REGIONS) {
+      if (g->dice[regionNum] == diceScore) {
+         // give resources to the campuses around campus
+         int studentType = g->discipline[regionNum];
+         int campusX = hexX[regionNum];
+         while (campusX <= hexX[regionNum] + 1) {
+            int campusY = hexY[regionNum];
+            while (campusY <= hexY[regionNum] + 2) {
+               int campusType = g->vertices[campusX][campusY].campus;
+               //checking for campus specific discipline and adding to it 
+               if (campusType == 1) {
+                  g->players[0].students[studentType] += 1;
+               } else if (campusType == 2) {
+                  g->players[1].students[studentType] += 1;
+               } else if (campusType == 3) {
+                  g->players[2].students[studentType] += 1;
+               } else if (campusType == 4) {
+                  g->players[0].students[studentType] += 2;
+               } else if (campusType == 5) {
+                  g->players[1].students[studentType] += 2;
+               } else if (campusType == 6) {
+                  g->players[2].students[studentType] += 2;
+               }
+               campusY++;
+            }
+            campusX++;
+         }
+      }
+      regionNum++;
+   }
+   //special case: 7 is rolled as per rules:
+   // Whenever a 7 is thrown, immediately after any new students are produced, 
+   // all MTV and M$ students of all universities decide to switch to ThD's.
+   if (diceScore == 7) {
+      int whichPlayer = 0;
+      while (whichPlayer < NUM_UNIS) {
+         g->players[whichPlayer].students[STUDENT_THD] += g->players[whichPlayer].students[STUDENT_MTV];
+         g->players[whichPlayer].students[STUDENT_MTV] = 0;
+         g->players[whichPlayer].students[STUDENT_THD] += g->players[whichPlayer].students[STUDENT_MMONEY];
+         g->players[whichPlayer].students[STUDENT_MMONEY] = 0;
+         whichPlayer++;
+      }
+   }
+}
