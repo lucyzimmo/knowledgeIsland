@@ -81,7 +81,7 @@ typedef struct _player {
 Game newGame (int discipline[], int dice[]) {
     // Actually modify structs and do specifics
     
-    Game g;
+    Game g = malloc (sizeof(Game))
     
     //setting up mostPublications and mostArcs
     g->mostPublications = NO_ONE;
@@ -284,6 +284,78 @@ int getMostPublications(Game g) {
     return g->mostPublications; 
 }
 
+Point pathToPoint (Game g, Path path) {
+    int pathLen = strlen (path);
+    // Set up starting point
+    Hex currentHex = g->hexes[7][0];
+    Point currentPoint;
+    currentPoint->hexIndexes = 7;
+    if (path[0] == 'R') {
+        currentPoint->ARCIndex = [5];
+        currentPoint->vertexIndex = [5]
+    } else if (path[0] == 'L') {
+        currentPoint->ARCIndex = [0];
+        currentPoint->vertexIndex = [1]
+    } else {
+        currentPoint->ARCIndex = [0];
+        currentPoint->vertexIndex = [0]
+    }
+
+    int i = 1; 
+    // i starts at 1 because we have already done path[0] in setup
+    while (i < pathLen) {
+        int currentARC = currentPoint->ARCIndex;
+        int currentVertex = currentPoint->vertexIndex;
+        int currentHex = currentPoint->hexIndexes;
+        if (path[i] == 'R') {
+            if (currentPoint->ARCIndex < currentPoint->vertexIndex) {
+                currentPoint->ARCIndex = (currentARC + 1)
+                        % NUM_SIDES_ON_HEX;
+                currentPoint->vertexIndex = (currentVertex + 1)
+                        % NUM_SIDES_ON_HEX;
+            } else {
+                currentPoint->hexIndexes = g->hexes[currentHex]->
+                                borderingHexes[currentARC]->hexIndex;
+                currentPoint->ARCIndex = (currentPoint->ARCIndex 
+                        + (NUM_SIDES_ON_HEX/2)) % NUM_SIDES_ON_HEX;
+                currentPoint->vertexIndex = 
+                        (currentPoint->ARCIndex + 1);
+            } 
+        } else if (path[i] == 'L') {
+            if (currentPoint->ARCIndex == currentPoint->vertexIndex) {
+                currentPoint->ARCIndex = (currentARC + 1) 
+                                    % NUM_SIDES_ON_HEX;
+                currentPoint->vertexIndex = (currentVertex + 1)  
+                                               % NUM_SIDES_ON_HEX;
+            } else {
+                currentPoint->hexIndexes = g->hexes[currentHex]->
+                                borderingHexes[currentARC]->hexIndex;
+                currentPoint->ARCIndex = (currentPoint->ARCIndex + 
+                            (NUM_SIDES_ON_HEX/2)) % NUM_SIDES_ON_HEX;
+                currentPoint->vertexIndex = 
+                            (currentPoint->ARCIndex + 1);
+            }
+        } else {
+            if (currentPoint->ARCIndex < currentPoint->vertexIndex) {
+                currentPoint->vertexIndex --;
+            } else {
+                currentPoint->vertexIndex ++;
+            }
+        }
+        i ++;
+    }
+    // seting the other hexes it borders
+    currentPoint->hexIndexes[1] = g->hexes[currentPoint->hexIndexes]->
+                                borderingHexes[currentPoint->ARCIndex];
+    if (currentPoint->ARCIndex == currentPoint->vertexIndex) {
+        int indexBorderingThirdHex = (currentPoint->ARCIndex-1) 
+                                            % NUM_SIDES_ON_HEX;
+        currentPoint->hexIndexes[2] = g->hexes[currentPoint->hexIndexes]
+                    ->borderingHexes[indexBorderingThirdHex]->hexIndex;
+    }
+    return currentPoint;
+}
+
 // return the current turn number of the game -1,0,1, ..
 int getTurnNumber (Game g) {
     return g->turnNumber;    
@@ -303,4 +375,17 @@ int getWhoseTurn (Game g) {
 // return the number of GO8 campuses the specified player currently has
 int getGO8s (Game g, int player) {
     return g->players[player]->GO8s;
+}
+
+// return the contents of the given vertex (ie campus code or 
+// VACANT_VERTEX)
+int getCampus(Game g, path pathToVertex) {
+    Point campusPoint = pathToPoint (pathToVertex);
+    return g->hexes[campusPoint->hexIndexes[0]]->campuses[campusPoint->vertexIndex];
+}
+
+// the contents of the given edge (ie ARC code or vacent ARC)
+int getARC(Game g, path pathToEdge) {
+    Point ARCPoint = pathToPoint (pathToEdge);
+    return g->hexes[ARCPoint->hexIndexes[0]]->ARCs[ARCPoint->ARCIndex];
 }
