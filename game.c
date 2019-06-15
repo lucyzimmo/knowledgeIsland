@@ -489,5 +489,8 @@ int isLegalAction(Game g, action a) {
                  }
             }
          }
+      } else if (a.actionCode == BUILD_GO8) {
+         //check if resources, path is legal and campus belongs to them
+         isLegal = (g->players[whoseTurn - 1].students[STUDENT_MJ] >= 2) && (g->players[whoseTurn - 1].students[STUDENT_MMONEY] >= 3) && (g->vertices[x][y].campus == whoseTurn) && ((getGO8s(g,UNI_A) + getGO8s(g,UNI_B) + getGO8s(g,UNI_C)) < 8);
       }
     return isLegal;
