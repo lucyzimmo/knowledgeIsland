@@ -6,7 +6,7 @@
 #define WINNING_KPI_POINTS 120
 #define ARC_KPI_POINTS 2
 #define CAMPUS_KPI_POINTS 10
-#define GO8_KPI_POINTS 20 
+#define GO8_KPI_POINTS 20
 #define IP_KPI_POINTS 10
 #define MOST_ARCS_KPI_POINTS 10
 #define MOST_PUBLICATIONS_KPI_POINTS 10
@@ -34,24 +34,23 @@ struct _point {
 }* Point;
 
 typedef struct _vertex {
-   //Stores the arc north of the vertex.
-   int arcV;
-   //Stores the arc east of the vertex.
-   int arcH;
-   //Stores the campus on the vertex.
-   int campus;
+    //Stores the arc north of the vertex.
+    int arcV;
+    //Stores the arc east of the vertex.
+    int arcH;
+    //Stores the campus on the vertex.
+    int campus;
 } vertex;
 
 struct _game {
     Player players[NUM_UNIS];
-    Hex hexes[NUM_Regions];
+    Hex hexes[NUM_REGIONS];
     int turnNumber; 
     
-   // An 2D array of vertex structs stating location of campuses
-   vertex vertices[NUM_COLUMNS][NUM_ROWS];
-   int mostARCs;
-   int mostPublications;
-   int dice[NUM_REGIONS]; //dice number for each region 
+    // An 2D array of vertex structs stating location of campuses
+    vertex vertices[NUM_COLUMNS][NUM_ROWS];
+    int mostARCs;
+    int mostPublications;
 }
 
 typedef struct _hex {
@@ -65,6 +64,7 @@ typedef struct _hex {
 }*Hex;
 
 typedef struct _player {
+
     int KPIPoints;
     Path ARCs[NUM_VERTICES];
     Path campuses[NUM_VERTICES];
@@ -75,6 +75,7 @@ typedef struct _player {
     int GO8s;
     int ips;
     int publications;
+
     /// sum of each discipline
     int studentType[NUM_DISCIPLINES]
 } *Player;
@@ -90,8 +91,8 @@ Game newGame (int discipline[], int dice[]) {
     // Setting up players 
     int i = 0; 
     while (i <= NUM_UNIS) {
-        Player currentPlayer = g->players[i];
-        currentPlayer->KPIPoints = 2 * CAMPUS_KPI_POINTS;
+       Player currentPlayer = g->players[i];
+       currentPlayer->KPIPoints = 2 * CAMPUS_KPI_POINTS;
     }
     Player uniA g->players[UNI_A-1]; //UNI_A is 1 not 0, so to convert it to indexes you need to subtract 1
     uniA->campuses[] = {PATH_TO_CAMPUS_A1, PATH_TO_CAMPUS_A2};
@@ -145,33 +146,16 @@ Game newGame (int discipline[], int dice[]) {
     g->hexes[17]->borderingHexes = {g->hexes[16], NULL, NULL, g->hexes[18], g->hexes[14], g->hexes[13]};
     g->hexes[18]->borderingHexes = {g->hexes[17], NULL, NULL, NULL, g->hexes[15], g->hexes[14]};
     
-
-   //initialize students and players
-   int playerID = 0;
-   while (playerID < NUM_UNIS) {
-      g->players[playerID].students[STUDENT_THD] = 0;
-      g->players[playerID].students[STUDENT_BPS] = 3;
-      g->players[playerID].students[STUDENT_BQN] = 3;
-      g->players[playerID].students[STUDENT_MJ] = 1;
-      g->players[playerID].students[STUDENT_MTV] = 1;
-      g->players[playerID].students[STUDENT_MMONEY] = 1;
-      g->players[playerID].campuses = 2;
-      g->players[playerID].go8s = 0;
-      g->players[playerID].arcs = 0;
-      g->players[playerID].publications = 0;
-      g->players[playerID].patents = 0;
-      playerID++;
-   }
-   int x = 0;
+    int x = 0;
     while (x < NUM_COLUMNS) {
-      int y = 0;
-      while (y < NUM_ROWS) {
-         g->vertices[x][y].arcV = VACANT_ARC;
-         g->vertices[x][y].arcH = VACANT_ARC;
-         g->vertices[x][y].campus = VACANT_VERTEX;
-         y++;
-      }
-      x++;
+        int y = 0;
+        while (y < NUM_ROWS) {
+            g->vertices[x][y].arcV = VACANT_ARC;
+            g->vertices[x][y].arcH = VACANT_ARC;
+            g->vertices[x][y].campus = VACANT_VERTEX;
+            y++;
+        }
+     x++;
    }
    // then initialize the starting campuses
    g->vertices[2][10].campus = CAMPUS_A;
@@ -185,15 +169,15 @@ Game newGame (int discipline[], int dice[]) {
 }
 
 int getIPs(Game g, int player) {
-    return g->players[player].ips;
+    return g->players[player]->ips;
 }
 
 int getARCs(Game g, int player) {
     int total = 0;
     for (int i = 0; i < g->arcCount; i++) {
-        if (g->arcs[i].owner == player) {
-            total++;
-        }
+       if (g->arcs[i].owner == player) {
+          total++;
+       }
     }
     return total;
 }
@@ -210,87 +194,85 @@ int getDiscipline(Game g, int regionID) {
 }
 
 void makeAction (Game g, action a) {
-   int currentPlayer = getWhoseTurn(g);
-   int x = 0;
-   int y = 0;
-   int direction = 0;
+    int currentPlayer = getWhoseTurn(g);
+    int x = 0;
+    int y = 0;
+    int direction = 0;
    
-   if (a.actionCode == PASS) {
+    if (a.actionCode == PASS) {
+        //do nothing
+    } else if (a.actionCode == BUILD_CAMPUS) {
+        g->vertices[x][y].campus = currentPlayer;
+        g->players[currentPlayer-1].campuses++;
+        // remove studentType
+        g->players[currentPlayer-1].studentType[STUDENT_BPS]--;
+        g->players[currentPlayer-1].studentType[STUDENT_BQN]--;
+        g->players[currentPlayer-1].studentType[STUDENT_MJ]--;
+        g->players[currentPlayer-1].studentType[STUDENT_MTV]--;
+    } else if (a.actionCode == BUILD_GO8) { 
+        g->vertices[x][y].campus = currentPlayer + 3; //add to account for GO8
+        g->players[currentPlayer-1].campuses--; //remove campus as GO8 replaces campus
+        g->players[currentPlayer-1].go8s++;
+        // remove studentType
+        g->players[currentPlayer-1].studentType[STUDENT_MJ] -= 2; //to account for cost of GO8
+        g->players[currentPlayer-1].studentType[STUDENT_MMONEY] -= 3;
+
+    } else if (a.actionCode == OBTAIN_ARC) {      
+        // get the correct arc based on direction
+        // add arc to map
+        if (direction == 'U') {
+            g->vertices[x][y].arcV = currentPlayer;
+        } else if (direction == 'D') {
+            g->vertices[x][y-1].arcV = currentPlayer;
+        } else if (direction == 'L') {
+            g->vertices[x-1][y].arcH = currentPlayer;
+        } else if (direction == 'R') {
+            g->vertices[x][y].arcH = currentPlayer;
+        }
+     
+        // add arc to player
+        g->players[currentPlayer-1]->arcs++;
+        // remove studentType
+        g->players[currentPlayer-1]->studentType[STUDENT_BPS]--;
+        g->players[currentPlayer-1]->studentType[STUDENT_BQN]--;
+          
+        //calculating MostArcs
+        if (g->mostARCs == 0 || g->players[currentPlayer - 1]->arcs > g->players[g->mostARCs - 1]->arcs) {
+            g->mostARCs = currentPlayer;
+        }
+
+    } else if (a.actionCode == OBTAIN_PUBLICATION) {
+        g->players[currentPlayer]->publications ++;
         
-   } else if (a.actionCode == BUILD_CAMPUS) {
-      //0,0 is okay because in line below we are setting new position for current player
-      g->vertices[x][y].campus = currentPlayer; 
-      g->players[currentPlayer-1].campuses++;
-      // remove studentType
-      g->players[currentPlayer-1].studentType[STUDENT_BPS]--;
-      g->players[currentPlayer-1].studentType[STUDENT_BQN]--;
-      g->players[currentPlayer-1].studentType[STUDENT_MJ]--;
-      g->players[currentPlayer-1].studentType[STUDENT_MTV]--;
-   } else if (a.actionCode == BUILD_GO8) { 
-      g->vertices[x][y].campus = currentPlayer + 3; //add to account for GO8
-      g->players[currentPlayer-1].campuses--; //remove campus as GO8 replaces campus
-      g->players[currentPlayer-1].go8s++;
-      // remove studentType
-      g->players[currentPlayer-1].studentType[STUDENT_MJ] -= 2; //to account for cost of GO8
-      g->players[currentPlayer-1].studentType[STUDENT_MMONEY] -= 3;
+        //update mostPublications
+        if (g->mostPublications == 0 || g->players[currentPlayer - 1].publications > g->players[g->mostPublications - 1].publications) {
+           g->mostPublications = currentPlayer;
+        }
+        
+        // remove studentType
+        g->players[currentPlayer-1]->studentType[STUDENT_MJ]--;
+        g->players[currentPlayer-1]->studentType[STUDENT_MTV]--;
+        g->players[currentPlayer-1]->studentType[STUDENT_MMONEY]--;
+    } else if (a.actionCode == OBTAIN_IP_PATENT) {
+        g->players[currentPlayer-1]->ips++;
 
-   } else if (a.actionCode == OBTAIN_ARC) {      
-      // get the correct arc based on direction
-      // add arc to map
-      if (direction == 'U') {
-         g->vertices[x][y].arcV = currentPlayer;
-      } else if (direction == 'D') {
-         g->vertices[x][y-1].arcV = currentPlayer;
-      } else if (direction == 'L') {
-         g->vertices[x-1][y].arcH = currentPlayer;
-      } else if (direction == 'R') {
-         g->vertices[x][y].arcH = currentPlayer;
-      }
-      
-      // add arc to player
-      g->players[currentPlayer-1].arcs++;
-      // remove studentType
-      g->players[currentPlayer-1].studentType[STUDENT_BPS]--;
-      g->players[currentPlayer-1].studentType[STUDENT_BQN]--;
-       
-      //calculating MostArcs
-      if (g->mostARCs == 0 || g->players[currentPlayer - 1].arcs > g->players[g->mostARCs - 1].arcs) {
-         g->mostARCs = currentPlayer;
-      }
-
-      
-   } else if (a.actionCode == OBTAIN_PUBLICATION) {
-      g->players[currentPlayer].publications++;
-      
-      //update mostPublications
-      if (g->mostPublications == 0 || g->players[currentPlayer - 1].publications > g->players[g->mostPublications - 1].publications) {
-         g->mostPublications = currentPlayer;
-      }
-      
-      // remove studentType
-      g->players[currentPlayer-1].studentType[STUDENT_MJ]--;
-      g->players[currentPlayer-1].studentType[STUDENT_MTV]--;
-      g->players[currentPlayer-1].studentType[STUDENT_MMONEY]--;
-   } else if (a.actionCode == OBTAIN_IP_PATENT) {
-      g->players[currentPlayer-1].ips++;
-      
-      // remove studentType
-      g->players[currentPlayer-1].studentType[STUDENT_MJ]--;
-      g->players[currentPlayer-1].studentType[STUDENT_MTV]--;
-      g->players[currentPlayer-1].studentType[STUDENT_MMONEY]--;
-   } else if (a.actionCode == RETRAIN_STUDENTS) {
-      int rate = getExchangeRate(g, currentPlayer, a.disciplineFrom, a.disciplineTo);
-      g->players[currentPlayer-1].studentType[a.disciplineFrom] -= rate;
-      g->players[currentPlayer-1].studentType[a.disciplineTo] += 1;
-   }
+        // remove studentType
+        g->players[currentPlayer-1]->studentType[STUDENT_MJ]--;
+        g->players[currentPlayer-1]->studentType[STUDENT_MTV]--;
+        g->players[currentPlayer-1]->studentType[STUDENT_MMONEY]--;
+    } else if (a.actionCode == RETRAIN_STUDENTS) {
+        int rate = getExchangeRate(g, currentPlayer, a.disciplineFrom, a.disciplineTo);
+        g->players[currentPlayer-1]->studentType[a.disciplineFrom] -= rate;
+        g->players[currentPlayer-1]->studentType[a.disciplineTo] += 1;
+    }
 }
 int getPublications(Game g, int player) {
-   int publications = g->players[player-UNI_A].publications;
-   return publications;
+    int publications = g->players[player-UNI_A]->publications;
+    return publications;
 }
 
 int getStudents(Game g, int player, int discipline) {
-    int studentAmount = g->players[player-UNI_A].students[discipline];
+    int studentAmount = g->players[player-UNI_A]->students[discipline];
     return studentAmount;
 }
 
@@ -301,78 +283,6 @@ int getMostARCs(Game g) {
 
 int getMostPublications(Game g) {
     return g->mostPublications; 
-}
-
-Point pathToPoint (Game g, Path path) {
-    int pathLen = strlen (path);
-    // Set up starting point
-    Hex currentHex = g->hexes[7][0];
-    Point currentPoint;
-    currentPoint->hexIndexes = 7;
-    if (path[0] == 'R') {
-        currentPoint->ARCIndex = [5];
-        currentPoint->vertexIndex = [5]
-    } else if (path[0] == 'L') {
-        currentPoint->ARCIndex = [0];
-        currentPoint->vertexIndex = [1]
-    } else {
-        currentPoint->ARCIndex = [0];
-        currentPoint->vertexIndex = [0]
-    }
-
-    int i = 1; 
-    // i starts at 1 because we have already done path[0] in setup
-    while (i < pathLen) {
-        int currentARC = currentPoint->ARCIndex;
-        int currentVertex = currentPoint->vertexIndex;
-        int currentHex = currentPoint->hexIndexes;
-        if (path[i] == 'R') {
-            if (currentPoint->ARCIndex < currentPoint->vertexIndex) {
-                currentPoint->ARCIndex = (currentARC + 1)
-                        % NUM_SIDES_ON_HEX;
-                currentPoint->vertexIndex = (currentVertex + 1)
-                        % NUM_SIDES_ON_HEX;
-            } else {
-                currentPoint->hexIndexes = g->hexes[currentHex]->
-                                borderingHexes[currentARC]->hexIndex;
-                currentPoint->ARCIndex = (currentPoint->ARCIndex 
-                        + (NUM_SIDES_ON_HEX/2)) % NUM_SIDES_ON_HEX;
-                currentPoint->vertexIndex = 
-                        (currentPoint->ARCIndex + 1);
-            } 
-        } else if (path[i] == 'L') {
-            if (currentPoint->ARCIndex == currentPoint->vertexIndex) {
-                currentPoint->ARCIndex = (currentARC + 1) 
-                                    % NUM_SIDES_ON_HEX;
-                currentPoint->vertexIndex = (currentVertex + 1)  
-                                               % NUM_SIDES_ON_HEX;
-            } else {
-                currentPoint->hexIndexes = g->hexes[currentHex]->
-                                borderingHexes[currentARC]->hexIndex;
-                currentPoint->ARCIndex = (currentPoint->ARCIndex + 
-                            (NUM_SIDES_ON_HEX/2)) % NUM_SIDES_ON_HEX;
-                currentPoint->vertexIndex = 
-                            (currentPoint->ARCIndex + 1);
-            }
-        } else {
-            if (currentPoint->ARCIndex < currentPoint->vertexIndex) {
-                currentPoint->vertexIndex --;
-            } else {
-                currentPoint->vertexIndex ++;
-            }
-        }
-        i ++;
-    }
-    // seting the other hexes it borders
-    currentPoint->hexIndexes[1] = g->hexes[currentPoint->hexIndexes]->
-                                borderingHexes[currentPoint->ARCIndex];
-    if (currentPoint->ARCIndex == currentPoint->vertexIndex) {
-        int indexBorderingThirdHex = (currentPoint->ARCIndex-1) 
-                                            % NUM_SIDES_ON_HEX;
-        currentPoint->hexIndexes[2] = g->hexes[currentPoint->hexIndexes]
-                    ->borderingHexes[indexBorderingThirdHex]->hexIndex;
-    }
-    return currentPoint;
 }
 
 // return the current turn number of the game -1,0,1, ..
@@ -396,6 +306,125 @@ int getGO8s (Game g, int player) {
     return g->players[player]->GO8s;
 }
 
+int isLegalPath (Game g, Path path) {
+    int pathLen = strlen (path);
+    int i = 0;
+    while (i )
+}
+
+Point pathToPoint (Game g, Path path) {
+    int pathLen = strlen (path);
+    // Set up starting point
+    Hex currentHex = g->hexes[7];
+    Point currentPoint;
+    currentPoint->hexIndexes[0] = 7;
+    currentPoint->borderingHexes[0] = currentHex;
+    if (path[0] == 'R') {
+        currentPoint->ARCIndex = [5];
+        currentPoint->vertexIndex = [5]
+        currentPoint->borderingHexes[1] = NULL;
+        currentPoint->borderingHexes[2] = g->hexes[3];
+    } else if (path[0] == 'L') {
+        currentPoint->ARCIndex = [0];
+        currentPoint->vertexIndex = [1]
+        currentPoint->borderingHexes[1] = NULL;
+        currentPoint->borderingHexes[2] = NULL;
+    } else {
+        currentPoint->ARCIndex = [0];
+        currentPoint->vertexIndex = [0]
+        currentPoint->borderingHexes[1] = NULL;
+        currentPoint->borderingHexes[2] = NULL;
+    }
+
+    int i = 1; 
+    // i starts at 1 because we have already done path[0] in setup
+    int currentARCIndex = currentPoint->ARCIndex;
+    int currentVertexIndex = currentPoint->vertexIndex;
+    int currentHexIndex = currentPoint->hexIndexes[0];
+    currentHex = g->hexes[currentHexIndex];
+    Hex currentBorderingHex = currentHex->borderingHexes[currentARC];
+    while (i < pathLen && invalidPath == 0) {
+        if (path[i] == 'R') {
+            // if the edge is clockwise "in front" of the vertex
+            if (currentARCIndex < currentVertexIndex) {
+                currentPoint->ARCIndex = (currentARC + 1) 
+                    % NUM_SIDES_ON_HEX;
+                currentPoint->vertexIndex = (currentVertex + 1)
+                    % NUM_SIDES_ON_HEX;
+
+            // if the edge is clockwise "behind" the vertex
+            } else {
+                if (currentBorderingHex == NULL) {
+                }
+            } else {
+                currentPoint->hexIndexes[0] = currentBorderingHex->hexIndex;
+                currentPoint->ARCIndex = (currentARCIndex 
+                       + (NUM_SIDES_ON_HEX/2)) % NUM_SIDES_ON_HEX;
+                currentPoint->vertexIndex = (currentARCIndex + 1);
+            } 
+        } else if (path[i] == 'L') {
+          // if the vertex is clockwise "in front" of the vertex
+            if (currentARCIndex == currentVertexIndex) {
+                currentPoint->ARCIndex = (currentARC + 1) % NUM_SIDES_ON_HEX;
+                currentPoint->vertexIndex = (currentVertex + 1)  
+                                      % NUM_SIDES_ON_HEX;
+            } else {
+                currentPoint->hexIndexes[0] = currentBorderingHex->hexIndex;
+                currentPoint->ARCIndex = (currentARCIndex + 
+                       (NUM_SIDES_ON_HEX/2)) % NUM_SIDES_ON_HEX;
+                currentPoint->vertexIndex = (currentARCIndex + 1);
+            }
+        } else {
+            if (currentARCIndex < currentVertexIndex) {
+                 currentPoint->vertexIndex --;
+            } else {
+                currentPoint->vertexIndex ++;
+            }
+        }
+        currentARCIndex = currentPoint->ARCIndex;
+        currentVertexIndex = currentPoint->vertexIndex;
+        currentHexIndex = currentPoint->hexIndexes[0] 
+        currentHex g->hexes[currentHexIndex];
+        i ++;
+    }
+    // seting the other hexes it borders
+    currentPoint->hexIndexes[1] = g->hexes[currentPoint->hexIndexes]->
+                          borderingHexes[currentPoint->ARCIndex];
+    if (currentARCIndex == currentVertexIndex) {
+        int indexBorderingThirdHex = (currentARCIndex-1) 
+                                    % NUM_SIDES_ON_HEX;
+        currentPoint->hexIndexes[2] = g->hexes[currentPoint->hexIndexes]
+                ->borderingHexes[indexBorderingThirdHex]->hexIndex;
+    }
+    return currentPoint;
+}
+
+int getExchangeRate (Game g, int player, int disciplineFrom, int disciplineTo) {
+    int exchangerate = DEFAULT_EXCHANGE; //checks if campuses are on retrain areas, if they are sets it lower
+    if (((getCampus(g,"R") == player) 
+            || (getCampus(g,"RR") == player)) 
+            && (disciplineFrom == STUDENT_MTV)) {
+        exchangerate = RETRAIN_EXCHANGE;
+    } else if (((getCampus(g,"LL") == player) 
+            || (getCampus(g,"LLL") == player)) 
+            && (disciplineFrom == STUDENT_MMONEY)) {
+        exchangerate = RETRAIN_EXCHANGE;
+    } else if (((getCampus(g,"RRRLRLRLR") == player)
+            || (getCampus(g,"RRRLRLRLRL") == player)) 
+            && (disciplineFrom==STUDENT_BPS)) {
+        exchangerate = RETRAIN_EXCHANGE;
+    } else if (((getCampus(g,"LLLLRLRLRL") == player)
+            || (getCampus(g,"LLLLRLRLRLR") == player)) 
+            && (disciplineFrom == STUDENT_MJ)) {
+        exchangerate = RETRAIN_EXCHANGE;
+    } else if (((getCampus(g,"RRRLRR") == player) 
+            || (getCampus(g,"RRRLRRR") == player)) 
+            && (disciplineFrom == STUDENT_BQN)){
+        exchangerate = RETRAIN_EXCHANGE;
+    }
+    return exchangerate;
+}
+
 // return the contents of the given vertex (ie campus code or 
 // VACANT_VERTEX)
 int getCampus(Game g, path pathToVertex) {
@@ -408,129 +437,170 @@ int getARC(Game g, path pathToEdge) {
     Point ARCPoint = pathToPoint (pathToEdge);
     return g->hexes[ARCPoint->hexIndexes[0]]->ARCs[ARCPoint->ARCIndex];
 }
+
 void throwDice (Game g, int diceScore){
-   g->currentTurn++; //increases current turn
-   
-   // need to check which dice scores correspond to which region
-   
-   // below is an array for the hexes coordinates -> will each hex classify based on vertexes at bottom left
-   // thus this array stores the x and y coordinates of the vertex to the bottom left of
-   // the region and represents each region e.g. 0,6 represents one hex
-   int hexX[] = { 0,0,0, 1,1,1,1, 2,2,2,2,2, 3,3,3,3, 4,4,4 };
-   int hexY[] = { 6,4,2, 7,5,3,1, 8,6,4,2,0, 7,5,3,1, 6,4,2 };
-   
-   // campuses around the campus(coordinatesa: x,y) have coordinates:x/x-1, y/y-1/y-2
-   int regionNum = 0;
-   while (regionNum < NUM_REGIONS) {
-      if (g->dice[regionNum] == diceScore) {
-         // give resources to the campuses around campus
-         int studentType = g->discipline[regionNum];
-         int campusX = hexX[regionNum];
-         while (campusX <= hexX[regionNum] + 1) {
-            int campusY = hexY[regionNum];
-            while (campusY <= hexY[regionNum] + 2) {
-               int campusType = g->vertices[campusX][campusY].campus;
-               //checking for campus specific discipline and adding to it 
-               if (campusType == 1) {
-                  g->players[0].students[studentType] += 1;
-               } else if (campusType == 2) {
-                  g->players[1].students[studentType] += 1;
-               } else if (campusType == 3) {
-                  g->players[2].students[studentType] += 1;
-               } else if (campusType == 4) {
-                  g->players[0].students[studentType] += 2;
-               } else if (campusType == 5) {
-                  g->players[1].students[studentType] += 2;
-               } else if (campusType == 6) {
-                  g->players[2].students[studentType] += 2;
-               }
-               campusY++;
+    g->currentTurn++; //increases current turn
+
+    // need to check which dice scores correspond to which region
+
+    // below is an array for the hexes coordinates -> will each hex classify based on vertexes at bottom left
+    // thus this array stores the x and y coordinates of the vertex to the bottom left of
+    // the region and represents each region e.g. 0,6 represents one hex
+    int hexX[] = { 0,0,0, 1,1,1,1, 2,2,2,2,2, 3,3,3,3, 4,4,4 };
+    int hexY[] = { 6,4,2, 7,5,3,1, 8,6,4,2,0, 7,5,3,1, 6,4,2 };
+
+    // campuses around the campus(coordinatesa: x,y) have coordinates:x/x-1, y/y-1/y-2
+    int regionNum = 0;
+    while (regionNum < NUM_REGIONS) {
+        if (g->dice[regionNum] == diceScore) {
+        // give resources to the campuses around campus
+            int studentType = g->discipline[regionNum];
+            int campusX = hexX[regionNum];
+            while (campusX <= hexX[regionNum] + 1) {
+                int campusY = hexY[regionNum];
+                    while (campusY <= hexY[regionNum] + 2) {
+                    int campusType = g->vertices[campusX][campusY].campus;
+                    //checking for campus specific discipline and adding to it 
+                    if (campusType == 1) {
+                        g->players[0]->students[studentType] += 1;
+                    } else if (campusType == 2) {
+                        g->players[1]->students[studentType] += 1;
+                    } else if (campusType == 3) {
+                        g->players[2]->students[studentType] += 1;
+                    } else if (campusType == 4) {
+                        g->players[0]->students[studentType] += 2;
+                    } else if (campusType == 5) {
+                        g->players[1]->students[studentType] += 2;
+                    } else if (campusType == 6) {
+                        g->players[2]->students[studentType] += 2;
+                    }
+                    campusY++;
+                    }
+                campusX++;
             }
-            campusX++;
-         }
-      }
-      regionNum++;
-   }
-   //special case: 7 is rolled as per rules:
-   // Whenever a 7 is thrown, immediately after any new students are produced, 
-   // all MTV and M$ students of all universities decide to switch to ThD's.
-   if (diceScore == 7) {
-      int whichPlayer = 0;
-      while (whichPlayer < NUM_UNIS) {
-         g->players[whichPlayer].students[STUDENT_THD] += g->players[whichPlayer].students[STUDENT_MTV];
-         g->players[whichPlayer].students[STUDENT_MTV] = 0;
-         g->players[whichPlayer].students[STUDENT_THD] += g->players[whichPlayer].students[STUDENT_MMONEY];
-         g->players[whichPlayer].students[STUDENT_MMONEY] = 0;
-         whichPlayer++;
-      }
-   }
+        }
+        regionNum++;
+    }
+    //special case: 7 is rolled as per rules:
+    // Whenever a 7 is thrown, immediately after any new students are produced, 
+    // all MTV and M$ students of all universities decide to switch to ThD's.
+    if (diceScore == 7) {
+        int whichPlayer = 0;
+        while (whichPlayer < NUM_UNIS) {
+            g->players[whichPlayer]->students[STUDENT_THD] += g->players[whichPlayer]->students[STUDENT_MTV];
+            g->players[whichPlayer]->students[STUDENT_MTV] = 0;
+            g->players[whichPlayer]->students[STUDENT_THD] += g->players[whichPlayer]->students[STUDENT_MMONEY];
+            g->players[whichPlayer]->students[STUDENT_MMONEY] = 0;
+            whichPlayer++;
+        }
+    }
 }
 int isLegalAction(Game g, action a) {
     int isLegal;
     int whoseTurn = getwhoseTurn(g);
     if (whoseTurn != NO_ONE) {
-      if (a.actionCode == PASS) {
-         isLegal = 1;
-      } else if (a.actionCode == BUILD_CAMPUS) {
-         //special set of variables for this function 
-         int x, y, dir;
-         int checkConnectingArc; 
-         // first check if resources are there
-         if ((g->players[whoseTurn - 1].students[STUDENT_BPS] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_BQN] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_MJ ] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_MTV] >= 1)) {
-            //then check if campus is not there
-            if (g->vertices[x][y].campus == VACANT_VERTEX) {
-                 if ((g->vertices[x][y].arcH == whoseTurn) || (g->vertices[x][y].arcV == whoseTurn) || ((x > 0) && (g->vertices[x-1][y].arcH == whoseTurn)) || ((y > 0) && (g->vertices[x][y-1].arcV == whoseTurn))) {
-                    //make sure there are no campuses around location and that the arc connecting location is valid
-                      checkConnectingArc = ((x + y) % 2) * 2 - 1;
-                       if (((y == 10) || (g->vertices[x][y+1].campus == VACANT_VERTEX)) && ((y ==  0) || (g->vertices[x][y-1].campus == VACANT_VERTEX)) && ((checkConnectingArc ==  1) || (x == 10) || (g->vertices[x+1][y].campus == VACANT_VERTEX)) && ((checkConnectingArc == -1) || (x ==  0) || (g->vertices[x-1][y].campus == VACANT_VERTEX))) {
-                          //finally
-                          isLegal = 1;
-                       }
-                 }
-            }
-         }
-      } else if (a.actionCode == BUILD_GO8) {
-         //check if resources and if campus belongs to them
-         isLegal = (g->players[whoseTurn - 1].students[STUDENT_MJ] >= 2) && (g->players[whoseTurn - 1].students[STUDENT_MMONEY] >= 3) && (g->vertices[x][y].campus == whoseTurn) && ((getGO8s(g,UNI_A) + getGO8s(g,UNI_B) + getGO8s(g,UNI_C)) < 8);
-      } else if (a.actionCode == START_SPINOFF) {
-         isLegal = (g->players[whoseTurn - 1].students[STUDENT_MJ] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_MMONEY] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_MTV] >= 1);
-         //no need to check if obtain publication or obtain ip patent because always true
-      } else if (a.actionCode == OBTAIN_ARC) {
-          //If they have the resources. 
-          if ((g->players[whoseTurn - 1].students[STUDENT_BPS] >= 1) && (g->players[whoseTurn - 1].students[STUDENT_BQN] >= 1)) {
-              //have to add to paths so we can lead them to adjacent arcs
-              char adj[4][PATH_LIMIT + 2];
-              sprintf(adj[0], "%sL", a.destination);
-              sprintf(adj[1], "%sR", a.destination);
-              sprintf(adj[2], "%sBL", a.destination);
-              sprintf(adj[3], "%sBR", a.destination);
-              
-              //have to add to paths to account for two campuses at end of an arc
-              char ends[2][PATH_LIMIT+1];
-              sprintf(ends[0], "%s", a.destination);
-              sprintf(ends[1], "%sB", a.destination);
-              
-              //now check if arc is empty
-              if (getARC(g, a.destination) == NO_ONE) {
-                  //if they own a campus at end of an edge
-                  if (getCampus(g, ends[0]) == whoseTurn || getCampus(g, ends[0]) == whoseTurn + 3 || getCampus(g, ends[1]) == whoseTurn || getCampus(g, ends[1]) == whoseTurn + 3) {
-                       // it's legal
-                      isLegal = 1;
-                  }
-                  //or if they own a path at end of edge and no owners of a campus there exist
-                  if ((getARC(g, adj[0]) == whoseTurn) || (getARC(g, adj[1]) == whoseTurn)) {
-                    if (getCampus(g, ends[0]) == NO_ONE) {
-                    isLegal = 1;
+        if (a.actionCode == PASS) {
+            isLegal = 1;
+        } else if (a.actionCode == BUILD_CAMPUS) {
+            //special set of variables for this function 
+            int x, y, dir;
+            int checkConnectingArc; 
+            // first check if resources are there
+            if ((g->players[whoseTurn - 1]->students[STUDENT_BPS] >= 1) 
+                    && (g->players[whoseTurn - 1]
+                    ->students[STUDENT_BQN] >= 1) 
+                    && (g->players[whoseTurn - 1]
+                    ->students[STUDENT_MJ ] >= 1) 
+                    && (g->players[whoseTurn - 1]
+                    ->students[STUDENT_MTV] >= 1)) {
+                //then check if campus is not there
+                if (g->vertices[x][y].campus == VACANT_VERTEX) {
+                    if ((g->vertices[x][y].arcH == whoseTurn) 
+                            || (g->vertices[x][y].arcV == whoseTurn) 
+                            || ((x > 0) 
+                            && (g->vertices[x-1][y].arcH == whoseTurn)) 
+                            || ((y > 0) 
+                            && (g->vertices[x][y-1].arcV == whoseTurn))) {
+                        //make sure there are no campuses around location and that the arc connecting location is valid
+                        checkConnectingArc = ((x + y) % 2) * 2 - 1;
                     }
-                  }
-                  if ((getARC(g, adj[2]) == whoseTurn) || (getARC(g, adj[3]) == whoseTurn)) {
-                       if (getCampus(g, ends[1]) == NO_ONE) {
-                       isLegal = 1;
-                       }
-                  }
-              }
-          }
-      }
+                    if (((y == 10) 
+                            || (g->vertices[x][y+1].campus 
+                            == VACANT_VERTEX)) && ((y ==  0) 
+                            || (g->vertices[x][y-1].campus 
+                            == VACANT_VERTEX)) 
+                            && ((checkConnectingArc ==  1) 
+                            || (x == 10) 
+                            || (g->vertices[x+1][y].campus 
+                                == VACANT_VERTEX)) && ((checkConnectingArc == -1) 
+                            || (x ==  0) 
+                            || (g->vertices[x-1][y].campus 
+                                == VACANT_VERTEX))) {
+                        //finally
+                        isLegal = 1;
+                    }
+                }
+            }
+        } else if (a.actionCode == BUILD_GO8) {
+            //check if resources and if campus belongs to them
+            isLegal = (g->players[whoseTurn - 1]->students[STUDENT_MJ] 
+                    >= 2) 
+                && (g->players[whoseTurn - 1]->students[STUDENT_MMONEY] 
+                    >= 3) 
+                && (g->vertices[x][y].campus == whoseTurn) 
+                && ((getGO8s(g,UNI_A) 
+                    + getGO8s(g,UNI_B) 
+                    + getGO8s(g,UNI_C)) < 8);
+        } else if (a.actionCode == START_SPINOFF) {
+            isLegal = (g->players[whoseTurn - 1]->students[STUDENT_MJ]
+                    >= 1) 
+                && (g->players[whoseTurn - 1]->students[STUDENT_MMONEY] 
+                    >= 1) 
+                && (g->players[whoseTurn - 1]->students[STUDENT_MTV] 
+                    >= 1);
+            //no need to check if obtain publication or obtain ip patent because always true
+        } else if (a.actionCode == OBTAIN_ARC) {
+            //If they have the resources. 
+            if ((g->players[whoseTurn - 1]->students[STUDENT_BPS] >= 1) 
+                    && (g->players[whoseTurn - 1]->students[STUDENT_BQN] 
+                        >= 1)) {
+                //have to add to paths so we can lead them to adjacent arcs
+                char adj[4][PATH_LIMIT + 2];
+                sprintf(adj[0], "%sL", a.destination);
+                sprintf(adj[1], "%sR", a.destination);
+                sprintf(adj[2], "%sBL", a.destination);
+                sprintf(adj[3], "%sBR", a.destination);
+
+                //have to add to paths to account for two campuses at end of an arc
+                char ends[2][PATH_LIMIT+1];
+                sprintf(ends[0], "%s", a.destination);
+                sprintf(ends[1], "%sB", a.destination);
+            }
+            //now check if arc is empty
+            if (getARC(g, a.destination) == NO_ONE) {
+                //if they own a campus at end of an edge
+                if (getCampus(g, ends[0]) == whoseTurn 
+                        || getCampus(g, ends[0]) == whoseTurn + 3 
+                        || getCampus(g, ends[1]) == whoseTurn 
+                        || getCampus(g, ends[1]) == whoseTurn + 3) {
+                    // it's legal
+                    isLegal = 1;
+                }
+                //or if they own a path at end of edge and no owners of a campus there exist
+                if ((getARC(g, adj[0]) == whoseTurn) 
+                        || (getARC(g, adj[1]) == whoseTurn)) {
+                    if (getCampus(g, ends[0]) == NO_ONE) {
+                        isLegal = 1;
+                    }
+                }
+                if ((getARC(g, adj[2]) == whoseTurn) 
+                        || (getARC(g, adj[3]) == whoseTurn)) {
+                    if (getCampus(g, ends[1]) == NO_ONE) {
+                        isLegal = 1;
+                    }
+                }
+            }
+        }
     }
     return isLegal;
 }
