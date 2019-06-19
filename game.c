@@ -3,6 +3,9 @@
 #include <string.h>
 #include "game.h"
 
+#define NUM_ROWS 11
+#define NUM_COLUMNS 6
+
 #define WINNING_KPI_POINTS 120
 #define ARC_KPI_POINTS 2
 #define CAMPUS_KPI_POINTS 10
