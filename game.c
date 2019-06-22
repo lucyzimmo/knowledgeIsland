@@ -610,51 +610,54 @@ void throwDice (Game g, int diceScore){
     }
 }
 int isLegalAction(Game g, action a) {
+    int x, y;
     int isLegal;
-    int whoseTurn = getwhoseTurn(g);
+    int whoseTurn = getWhoseTurn(g);
     int ispathLegal = TRUE;
     if (a.actionCode == OBTAIN_ARC 
-                || a.actionCode == BUILD_CAMPUS 
+                || a.actionCode == BUILD_CAMPUS
                 || a.actionCode == BUILD_GO8) {
-        ispathLegal = isLegalpath (a.destination);
+        ispathLegal = isLegalpath (g, a.destination);
     }
     if (whoseTurn != NO_ONE || ispathLegal == FALSE) {
         if (a.actionCode == PASS) {
             isLegal = 1;
         } else if (a.actionCode == BUILD_CAMPUS) {
-            //special set of variables for this function 
-            int x, y, dir;
-            int checkConnectingArc; 
+            //special set of variables for this function
+            
+            //commented out for now since its unused
+            //int dir;
+            int checkConnectingArc;
             // first check if resources are there
-            if ((g->players[whoseTurn - 1]->students[STUDENT_BPS] >= 1) 
+            if ((g->players[whoseTurn - 1]->studentType[STUDENT_BPS] >= 1)
                     && (g->players[whoseTurn - 1]
-                    ->students[STUDENT_BQN] >= 1) 
+                    ->studentType[STUDENT_BQN] >= 1)
                     && (g->players[whoseTurn - 1]
-                    ->students[STUDENT_MJ ] >= 1) 
+                    ->studentType[STUDENT_MJ ] >= 1)
                     && (g->players[whoseTurn - 1]
-                    ->students[STUDENT_MTV] >= 1)) {
+                    ->studentType[STUDENT_MTV] >= 1)) {
                 //then check if campus is not there
                 if (g->vertices[x][y].campus == VACANT_VERTEX) {
-                    if ((g->vertices[x][y].arcH == whoseTurn) 
-                            || (g->vertices[x][y].arcV == whoseTurn) 
-                            || ((x > 0) 
-                            && (g->vertices[x-1][y].arcH == whoseTurn)) 
-                            || ((y > 0) 
+                    if ((g->vertices[x][y].arcH == whoseTurn)
+                            || (g->vertices[x][y].arcV == whoseTurn)
+                            || ((x > 0)
+                            && (g->vertices[x-1][y].arcH == whoseTurn))
+                            || ((y > 0)
                             && (g->vertices[x][y-1].arcV == whoseTurn))) {
                         //make sure there are no campuses around location and that the arc connecting location is valid
                         checkConnectingArc = ((x + y) % 2) * 2 - 1;
                     }
-                    if (((y == 10) 
-                            || (g->vertices[x][y+1].campus 
-                            == VACANT_VERTEX)) && ((y ==  0) 
-                            || (g->vertices[x][y-1].campus 
-                            == VACANT_VERTEX)) 
-                            && ((checkConnectingArc ==  1) 
-                            || (x == 10) 
-                            || (g->vertices[x+1][y].campus 
-                                == VACANT_VERTEX)) && ((checkConnectingArc == -1) 
-                            || (x ==  0) 
-                            || (g->vertices[x-1][y].campus 
+                    if (((y == 10)
+                            || (g->vertices[x][y+1].campus
+                            == VACANT_VERTEX)) && ((y ==  0)
+                            || (g->vertices[x][y-1].campus
+                            == VACANT_VERTEX))
+                            && ((checkConnectingArc ==  1)
+                            || (x == 10)
+                            || (g->vertices[x+1][y].campus
+                                == VACANT_VERTEX)) && ((checkConnectingArc == -1)
+                            || (x ==  0)
+                            || (g->vertices[x-1][y].campus
                                 == VACANT_VERTEX))) {
                         //finally
                         isLegal = 1;
@@ -663,57 +666,57 @@ int isLegalAction(Game g, action a) {
             }
         } else if (a.actionCode == BUILD_GO8) {
             //check if resources and if campus belongs to them
-            isLegal = (g->players[whoseTurn - 1]->students[STUDENT_MJ] 
-                    >= 2) 
-                && (g->players[whoseTurn - 1]->students[STUDENT_MMONEY] 
-                    >= 3) 
-                && (g->vertices[x][y].campus == whoseTurn) 
-                && ((getGO8s(g,UNI_A) 
-                    + getGO8s(g,UNI_B) 
+            isLegal = (g->players[whoseTurn - 1]->studentType[STUDENT_MJ]
+                    >= 2)
+                && (g->players[whoseTurn - 1]->studentType[STUDENT_MMONEY]
+                    >= 3)
+                && (g->vertices[x][y].campus == whoseTurn)
+                && ((getGO8s(g,UNI_A)
+                    + getGO8s(g,UNI_B)
                     + getGO8s(g,UNI_C)) < 8);
         } else if (a.actionCode == START_SPINOFF) {
-            isLegal = (g->players[whoseTurn - 1]->students[STUDENT_MJ]
-                    >= 1) 
-                && (g->players[whoseTurn - 1]->students[STUDENT_MMONEY] 
-                    >= 1) 
-                && (g->players[whoseTurn - 1]->students[STUDENT_MTV] 
+            isLegal = (g->players[whoseTurn - 1]->studentType[STUDENT_MJ]
+                    >= 1)
+                && (g->players[whoseTurn - 1]->studentType[STUDENT_MMONEY]
+                    >= 1)
+                && (g->players[whoseTurn - 1]->studentType[STUDENT_MTV]
                     >= 1);
             //no need to check if obtain publication or obtain ip patent because always false
         } else if (a.actionCode == OBTAIN_ARC) {
-            //If they have the resources. 
-            if ((g->players[whoseTurn - 1]->students[STUDENT_BPS] >= 1) 
-                    && (g->players[whoseTurn - 1]->students[STUDENT_BQN] 
+            //If they have the resources.
+            if ((g->players[whoseTurn - 1]->studentType[STUDENT_BPS] >= 1)
+                    && (g->players[whoseTurn - 1]->studentType[STUDENT_BQN]
                         >= 1)) {
                 //have to add to paths so we can lead them to adjacent arcs
-                char adj[4][path_LIMIT + 2];
+                char adj[4][PATH_LIMIT + 2];
                 sprintf(adj[0], "%sL", a.destination);
                 sprintf(adj[1], "%sR", a.destination);
                 sprintf(adj[2], "%sBL", a.destination);
                 sprintf(adj[3], "%sBR", a.destination);
 
                 //have to add to paths to account for two campuses at end of an arc
-                char ends[2][path_LIMIT+1];
+                char ends[2][PATH_LIMIT+1];
                 sprintf(ends[0], "%s", a.destination);
                 sprintf(ends[1], "%sB", a.destination);
             }
             //now check if arc is empty
             if (getARC(g, a.destination) == NO_ONE) {
                 //if they own a campus at end of an edge
-                if (getCampus(g, ends[0]) == whoseTurn 
-                        || getCampus(g, ends[0]) == whoseTurn + 3 
-                        || getCampus(g, ends[1]) == whoseTurn 
+                if (getCampus(g, ends[0]) == whoseTurn
+                        || getCampus(g, ends[0]) == whoseTurn + 3
+                        || getCampus(g, ends[1]) == whoseTurn
                         || getCampus(g, ends[1]) == whoseTurn + 3) {
                     // it's legal
                     isLegal = 1;
                 }
                 //or if they own a path at end of edge and no owners of a campus there exist
-                if ((getARC(g, adj[0]) == whoseTurn) 
+                if ((getARC(g, adj[0]) == whoseTurn)
                         || (getARC(g, adj[1]) == whoseTurn)) {
                     if (getCampus(g, ends[0]) == NO_ONE) {
                         isLegal = 1;
                     }
                 }
-                if ((getARC(g, adj[2]) == whoseTurn) 
+                if ((getARC(g, adj[2]) == whoseTurn)
                         || (getARC(g, adj[3]) == whoseTurn)) {
                     if (getCampus(g, ends[1]) == NO_ONE) {
                         isLegal = 1;
@@ -722,7 +725,7 @@ int isLegalAction(Game g, action a) {
             }
         } else if (a.actionCode == RETRAIN_STUDENTS) {
             int currentPlayer = getWhoseTurn (g);
-            int exchangeRate = getExchangeRate (g, currentPlayer, 
+            int exchangeRate = getExchangeRate (g, currentPlayer,
                 a.disciplineFrom, a.disciplineTo);
             if (g->players[currentPlayer]->studentType[a.disciplineFrom] >= exchangeRate) {
                 isLegal = TRUE;
