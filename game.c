@@ -67,7 +67,7 @@ typedef struct _player {
     path ARCs[NUM_VERTICES];
     path campuses[NUM_VERTICES];
     path GO8s[NUM_VERTICES];
-    //sum of each player has
+    //sum of each plzyer has
     int arcs;
     int numCampuses;
     int numGO8s;
@@ -304,10 +304,12 @@ int getTurnNumber (Game g) {
 // return the player id of the player whose turn it is 
 // the result of this function is NO_ONE during Terra Nullis
 int getWhoseTurn (Game g) {
+    int turnNumber = getTurnNumber(g);
+    int returnVal;
     if (turnNumber == TERRA_NULLIS) {
-        int returnVal = 0;
+        returnVal = 0;
     } else {
-        int returnVal = (getTurnNumber (g) + 1) % NUM_UNIS;
+        returnVal = (getTurnNumber (g) + 1) % NUM_UNIS;
     }
     return returnVal;
 }
