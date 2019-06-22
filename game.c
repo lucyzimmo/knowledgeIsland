@@ -30,11 +30,11 @@
 #define NUM_VERTICES 54
 #define NUM_HEXES_AT_POINT 3
 
-struct _point {
+typedef struct _point {
     int hexIndex[NUM_HEXES_AT_POINT];
     int ARCIndex;
     int vertexIndex;
-}* Point;
+} *Point;
 
 typedef struct _vertex {
     //Stores the arc north of the vertex.
@@ -44,17 +44,6 @@ typedef struct _vertex {
     //Stores the campus on the vertex.
     int campus;
 } vertex;
-
-struct _game {
-    Player players[NUM_UNIS];
-    Hex hexes[NUM_REGIONS];
-    int turnNumber; 
-    
-    // An 2D array of vertex structs stating location of campuses
-    vertex vertices[NUM_COLUMNS][NUM_ROWS];
-    int mostARCs;
-    int mostPublications;
-}
 
 typedef struct _hex {
     int hexIndex;
@@ -67,14 +56,6 @@ typedef struct _hex {
     int direction;
 } *Hex;
 
-typedef struct _vertex {
-    //Stores the arc north of the vertex.
-    int arcV;
-    //Stores the arc east of the vertex.
-    int arcH;
-    //Stores the campus on the vertex.
-    int campus;
-} vertex;
 
 typedef struct _player {
 
@@ -90,9 +71,8 @@ typedef struct _player {
     int publications;
 
     /// sum of each discipline
-    int studentType[NUM_DISCIPLINES]
+    int studentType[NUM_DISCIPLINES];
 } *Player;
-
 
 struct _game {
     Player players[NUM_UNIS];
@@ -107,6 +87,7 @@ struct _game {
 
 void copyPartOfString (char fullString[], char newString[], 
             int startIndex, int stopIndex);
+
 Point pathToPoint (Game g, path path);
 
 Game newGame (int discipline[], int dice[]) {
@@ -127,10 +108,10 @@ Game newGame (int discipline[], int dice[]) {
     uniA->campuses = {PATH_TO_CAMPUS_A1, PATH_TO_CAMPUS_A2};
 
     Player uniB = g->players[UNI_B-1];
-    uniB->campuses[] = {PATH_TO_CAMPUS_B1, PATH_TO_CAMPUS_B2};
+    uniB->campuses = {PATH_TO_CAMPUS_B1, PATH_TO_CAMPUS_B2};
 
     Player uniC = g->players[UNI_C-1];
-    uniC->campuses[] = {PATH_TO_CAMPUS_C1, PATH_TO_CAMPUS_C2};
+    uniC->campuses = {PATH_TO_CAMPUS_C1, PATH_TO_CAMPUS_C2};
 
 
 
