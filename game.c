@@ -567,27 +567,27 @@ void throwDice (Game g, int diceScore){
     // campuses around the campus(coordinatesa: x,y) have coordinates:x/x-1, y/y-1/y-2
     int regionNum = 0;
     while (regionNum < NUM_REGIONS) {
-        if (g->dice[regionNum] == diceScore) {
+        if (g->hexes[regionNum]->diceValue == diceScore) {
         // give resources to the campuses around campus
-            int studentType = g->discipline[regionNum];
+            int studentType = g->hexes[regionNum]->student;
             int campusX = hexX[regionNum];
             while (campusX <= hexX[regionNum] + 1) {
                 int campusY = hexY[regionNum];
                     while (campusY <= hexY[regionNum] + 2) {
                     int campusType = g->vertices[campusX][campusY].campus;
-                    //checking for campus specific discipline and adding to it 
+                    //checking for campus specific discipline and adding to it
                     if (campusType == 1) {
-                        g->players[0]->students[studentType] += 1;
+                        g->players[0]->studentType[studentType] += 1;
                     } else if (campusType == 2) {
-                        g->players[1]->students[studentType] += 1;
+                        g->players[1]->studentType[studentType] += 1;
                     } else if (campusType == 3) {
-                        g->players[2]->students[studentType] += 1;
+                        g->players[2]->studentType[studentType] += 1;
                     } else if (campusType == 4) {
-                        g->players[0]->students[studentType] += 2;
+                        g->players[0]->studentType[studentType] += 2;
                     } else if (campusType == 5) {
-                        g->players[1]->students[studentType] += 2;
+                        g->players[1]->studentType[studentType] += 2;
                     } else if (campusType == 6) {
-                        g->players[2]->students[studentType] += 2;
+                        g->players[2]->studentType[studentType] += 2;
                     }
                     campusY++;
                     }
@@ -597,15 +597,15 @@ void throwDice (Game g, int diceScore){
         regionNum++;
     }
     //special case: 7 is rolled as per rules:
-    // Whenever a 7 is thrown, immediately after any new students are produced, 
+    // Whenever a 7 is thrown, immediately after any new students are produced,
     // all MTV and M$ students of all universities decide to switch to ThD's.
     if (diceScore == 7) {
         int whichPlayer = 0;
         while (whichPlayer < NUM_UNIS) {
-            g->players[whichPlayer]->students[STUDENT_THD] += g->players[whichPlayer]->students[STUDENT_MTV];
-            g->players[whichPlayer]->students[STUDENT_MTV] = 0;
-            g->players[whichPlayer]->students[STUDENT_THD] += g->players[whichPlayer]->students[STUDENT_MMONEY];
-            g->players[whichPlayer]->students[STUDENT_MMONEY] = 0;
+            g->players[whichPlayer]->studentType[STUDENT_THD] += g->players[whichPlayer]->studentType[STUDENT_MTV];
+            g->players[whichPlayer]->studentType[STUDENT_MTV] = 0;
+            g->players[whichPlayer]->studentType[STUDENT_THD] += g->players[whichPlayer]->studentType[STUDENT_MMONEY];
+            g->players[whichPlayer]->studentType[STUDENT_MMONEY] = 0;
             whichPlayer++;
         }
     }
