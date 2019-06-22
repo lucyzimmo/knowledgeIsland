@@ -32,11 +32,15 @@
 
 #define TERRA_NULLIS  -1
 
-typedef struct _point {
+#define CLOCKWISE 1
+#define ANTICLOCKWISE 2
+
+struct _point {
     int hexIndex[NUM_HEXES_AT_POINT];
     int ARCIndex;
     int vertexIndex;
-} *Point;
+    int direction;
+}* Point;
 
 typedef struct _vertex {
     //Stores the arc north of the vertex.
@@ -343,11 +347,12 @@ int isLegalpath (Game g, path path) {
 }
 
 int isLegalTurn (Game g, Point point, char nextTurn) {
+    Point currentPoint = point;
     int currentARCIndex = currentPoint->ARCIndex;
     int currentVertexIndex = currentPoint->vertexIndex;
     int currentHexIndex = currentPoint->hexIndexes[0];
-    currentHex = g->hexes[currentHexIndex];
-    Hex currentBorderingHex = currentHex->borderingHexes[currentARC];
+    Hex currentHex = g->hexes[currentHexIndex];
+    Hex currentBorderingHex = currentHex->borderingHexes[currentARCIndex];
     int currentDirection = currentPoint->direction;
     int isLegal = TRUE;
     if (nextTurn == 'R') {
