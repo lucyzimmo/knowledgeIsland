@@ -51,11 +51,13 @@ typedef struct _hex {
     int student;
 
     int ARCs[NUM_SIDES_ON_HEX];
+    int campuses[NUM_SIDES_ON_HEX];
+    int GO8s[NUM_SIDES_ON_HEX];
+    Hex borderingHexes[NUM_SIDES_ON_HEX];
     int ARCIndex;
     int vertexIndex;
     int direction;
 } *Hex;
-
 
 typedef struct _player {
 
