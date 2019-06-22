@@ -32,15 +32,11 @@
 
 #define TERRA_NULLIS  -1
 
-#define CLOCKWISE 1
-#define ANTICLOCKWISE 2
-
-struct _point {
+typedef struct _point {
     int hexIndex[NUM_HEXES_AT_POINT];
     int ARCIndex;
     int vertexIndex;
-    int direction;
-}* Point;
+} *Point;
 
 typedef struct _vertex {
     //Stores the arc north of the vertex.
@@ -288,7 +284,7 @@ int getPublications(Game g, int player) {
 }
 
 int getStudents(Game g, int player, int discipline) {
-    int studentAmount = g->players[player-UNI_A]->students[discipline];
+    int studentAmount = g->players[player-UNI_A]->studentType[discipline];
     return studentAmount;
 }
 
@@ -326,7 +322,7 @@ int getGO8s (Game g, int player) {
 
 int isLegalpath (Game g, path path) {
     int pathLen = strlen (path);
-    char currentString[path_LIMIT];
+    char currentString[PATH_LIMIT];
     int isLegal = TRUE;
     if (path[0] == 'B') {
         isLegal = FALSE;
@@ -338,21 +334,20 @@ int isLegalpath (Game g, path path) {
     int i = 1; // i starts at 1 becasue we already dealt with 0
     while (i < pathLen && isLegal == TRUE) {
         copyPartOfString (path, currentString, 0, i); // updates currentString
-        Point currentPoint = pathToPoint (currentString);
+        Point currentPoint = pathToPoint (g, currentString);
         if (isLegalTurn (g, currentPoint, currentString[i]) == FALSE) {
             isLegal = FALSE;
-        } 
+        }
     }
     return isLegal;
 }
 
 int isLegalTurn (Game g, Point point, char nextTurn) {
-    Point currentPoint = point;
     int currentARCIndex = currentPoint->ARCIndex;
     int currentVertexIndex = currentPoint->vertexIndex;
     int currentHexIndex = currentPoint->hexIndexes[0];
-    Hex currentHex = g->hexes[currentHexIndex];
-    Hex currentBorderingHex = currentHex->borderingHexes[currentARCIndex];
+    currentHex = g->hexes[currentHexIndex];
+    Hex currentBorderingHex = currentHex->borderingHexes[currentARC];
     int currentDirection = currentPoint->direction;
     int isLegal = TRUE;
     if (nextTurn == 'R') {
@@ -375,7 +370,6 @@ int isLegalTurn (Game g, Point point, char nextTurn) {
     }
     return isLegal;
 }
-
 
 void copyPartOfString (char fullString[], char newString[], 
             int startIndex, int stopIndex) {
@@ -560,7 +554,7 @@ int getARC(Game g, path pathToEdge) {
 }
 
 void throwDice (Game g, int diceScore){
-    g->currentTurn++; //increases current turn
+    g->turnNumber++; //increases current turn
 
     // need to check which dice scores correspond to which region
 
@@ -573,27 +567,27 @@ void throwDice (Game g, int diceScore){
     // campuses around the campus(coordinatesa: x,y) have coordinates:x/x-1, y/y-1/y-2
     int regionNum = 0;
     while (regionNum < NUM_REGIONS) {
-        if (g->dice[regionNum] == diceScore) {
+        if (g->hexes[regionNum]->diceValue == diceScore) {
         // give resources to the campuses around campus
-            int studentType = g->discipline[regionNum];
+            int studentType = g->hexes[regionNum]->student;
             int campusX = hexX[regionNum];
             while (campusX <= hexX[regionNum] + 1) {
                 int campusY = hexY[regionNum];
                     while (campusY <= hexY[regionNum] + 2) {
                     int campusType = g->vertices[campusX][campusY].campus;
-                    //checking for campus specific discipline and adding to it 
+                    //checking for campus specific discipline and adding to it
                     if (campusType == 1) {
-                        g->players[0]->students[studentType] += 1;
+                        g->players[0]->studentType[studentType] += 1;
                     } else if (campusType == 2) {
-                        g->players[1]->students[studentType] += 1;
+                        g->players[1]->studentType[studentType] += 1;
                     } else if (campusType == 3) {
-                        g->players[2]->students[studentType] += 1;
+                        g->players[2]->studentType[studentType] += 1;
                     } else if (campusType == 4) {
-                        g->players[0]->students[studentType] += 2;
+                        g->players[0]->studentType[studentType] += 2;
                     } else if (campusType == 5) {
-                        g->players[1]->students[studentType] += 2;
+                        g->players[1]->studentType[studentType] += 2;
                     } else if (campusType == 6) {
-                        g->players[2]->students[studentType] += 2;
+                        g->players[2]->studentType[studentType] += 2;
                     }
                     campusY++;
                     }
@@ -603,15 +597,15 @@ void throwDice (Game g, int diceScore){
         regionNum++;
     }
     //special case: 7 is rolled as per rules:
-    // Whenever a 7 is thrown, immediately after any new students are produced, 
+    // Whenever a 7 is thrown, immediately after any new students are produced,
     // all MTV and M$ students of all universities decide to switch to ThD's.
     if (diceScore == 7) {
         int whichPlayer = 0;
         while (whichPlayer < NUM_UNIS) {
-            g->players[whichPlayer]->students[STUDENT_THD] += g->players[whichPlayer]->students[STUDENT_MTV];
-            g->players[whichPlayer]->students[STUDENT_MTV] = 0;
-            g->players[whichPlayer]->students[STUDENT_THD] += g->players[whichPlayer]->students[STUDENT_MMONEY];
-            g->players[whichPlayer]->students[STUDENT_MMONEY] = 0;
+            g->players[whichPlayer]->studentType[STUDENT_THD] += g->players[whichPlayer]->studentType[STUDENT_MTV];
+            g->players[whichPlayer]->studentType[STUDENT_MTV] = 0;
+            g->players[whichPlayer]->studentType[STUDENT_THD] += g->players[whichPlayer]->studentType[STUDENT_MMONEY];
+            g->players[whichPlayer]->studentType[STUDENT_MMONEY] = 0;
             whichPlayer++;
         }
     }
