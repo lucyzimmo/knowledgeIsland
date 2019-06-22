@@ -27,17 +27,14 @@ action decideAction (Game g) {
             // a vertex with 3 regions
             path targetPath;
             
-            // defining paths of the closest 3-region vertex that is
-            // twp arcs away from starting campus
+
             path path1 = "" "RL";
             path path2 = "RLRLRLRLRLL" "LL";
             
-            // also specifying the region ID's at those vertices
             int path1Regions[] = {3, 7, 8};
             int path2Regions[] = {10, 11, 15};
             
-            // initialize counter to cycle through the 3 regions at
-            // the specified path closest to tripple region
+
             int a = 0;
             int path1Score = 0;
             int path2Score = 0;
@@ -65,12 +62,9 @@ action decideAction (Game g) {
             
 
             while (i < strlen(targetPath) && validPath == TRUE){
-               // building the substring
                sprintf(nextAction.destination,"%s",targetPath);
                nextAction.destination[i+1] = '\0';
-               
-               // checking whether the current substring is a legal path
-               // with having arcs along it
+
                validPath = (getARC(g, nextAction.destination) == UNI_A);
                i++;
             }
@@ -84,12 +78,10 @@ action decideAction (Game g) {
             path path1 = "LRLRLRRLRL" "BL";
             path path2 = "RRLRL"  "LL";
             
-            // also specifying the region ID's at those vertices
             int path1Regions[] = {0, 1, 4};
             int path2Regions[] = {14, 17, 18};
             
-            // initialize counter to cycle through the 3 regions at
-            // the specified path closest to tripple region
+
             int a = 0;
             int path1Score = 0;
             int path2Score = 0;
@@ -117,7 +109,6 @@ action decideAction (Game g) {
             
 
             while (i < strlen(targetPath) && validPath == TRUE){
-               // building the substring
                sprintf(nextAction.destination,"%s",targetPath);
                nextAction.destination[i+1] = '\0';
 
