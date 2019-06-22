@@ -220,7 +220,7 @@ void makeAction (Game g, action a) {
     } else if (a.actionCode == BUILD_GO8) { 
         g->vertices[x][y].campus = currentPlayer + 3; //add to account for GO8
         g->players[currentPlayer-1]->numCampuses--; //remove campus as GO8 replaces campus
-        g->players[currentPlayer-1]->numGO8++;
+        g->players[currentPlayer-1]->numGO8s++;
         // remove studentType
         g->players[currentPlayer-1]->studentType[STUDENT_MJ] -= 2; //to account for cost of GO8
         g->players[currentPlayer-1]->studentType[STUDENT_MMONEY] -= 3;
