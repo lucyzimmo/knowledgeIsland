@@ -30,6 +30,8 @@
 #define NUM_VERTICES 54
 #define NUM_HEXES_AT_POINT 3
 
+#define TERRA_NULLIS  -1
+
 typedef struct _point {
     int hexIndex[NUM_HEXES_AT_POINT];
     int ARCIndex;
