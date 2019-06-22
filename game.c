@@ -349,7 +349,7 @@ int isLegalpath (Game g, path path) {
 int isLegalTurn (Game g, Point point, char nextTurn) {
     Point currentPoint = point;
     int currentARCIndex = currentPoint->ARCIndex;
-    int currentVertexIndex = currentPoint->vertexIndex;
+    //int currentVertexIndex = currentPoint->vertexIndex;
     int currentHexIndex = currentPoint->hexIndexes[0];
     Hex currentHex = g->hexes[currentHexIndex];
     Hex currentBorderingHex = currentHex->borderingHexes[currentARCIndex];
@@ -358,14 +358,14 @@ int isLegalTurn (Game g, Point point, char nextTurn) {
     if (nextTurn == 'R') {
         // if the vertex is clockwise "in front" of the edge
         if (currentDirection == ANTICLOCKWISE) {
-            if (currentBorderingHex == NULL && currentPoint->hexIndexes[3] == NULL) {
+            if (currentBorderingHex == NULL && g->hexes[currentPoint->hexIndexes[3]] == NULL) {
                 isLegal = FALSE;
             }
-        } 
+        }
     } else if (nextTurn == 'L') {
         // if the vertex is clockwise "behind" the edge
         if (currentDirection == CLOCKWISE) {
-            if (currentBorderingHex == NULL && currentPoint->hexIndexes[3] == NULL) {
+            if (currentBorderingHex == NULL && g->hexes[currentPoint->hexIndexes[3]] == NULL) {
                 isLegal = FALSE;
             }
         }
