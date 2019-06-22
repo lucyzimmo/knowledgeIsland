@@ -35,7 +35,7 @@
 #define CLOCKWISE 1
 #define ANTICLOCKWISE 2
 
-struct _point {
+typedef struct _point {
     int hexIndex[NUM_HEXES_AT_POINT];
     int ARCIndex;
     int vertexIndex;
