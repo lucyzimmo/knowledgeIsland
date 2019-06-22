@@ -35,13 +35,6 @@
 #define CLOCKWISE 1
 #define ANTICLOCKWISE 2
 
-typedef struct _point {
-    int hexIndexes[NUM_HEXES_AT_POINT];
-    int ARCIndex;
-    int vertexIndex;
-    int direction;
-}* Point;
-
 typedef struct _vertex {
     //Stores the arc north of the vertex.
     int arcV;
@@ -65,6 +58,15 @@ typedef struct _hex {
     int direction;
 } *Hex;
 
+typedef struct _point {
+    Hex borderingHexes[NUM_SIDES_ON_HEX];
+    int hexIndexes[NUM_HEXES_AT_POINT];
+    int ARCIndex;
+    int vertexIndex;
+    int direction;
+
+}* Point;
+
 typedef struct _player {
 
     int KPIPoints;
@@ -85,8 +87,8 @@ typedef struct _player {
 struct _game {
     Player players[NUM_UNIS];
     Hex hexes[NUM_REGIONS];
-    int turnNumber; 
-    
+    int turnNumber;
+
     // An 2D array of vertex structs stating location of campuses
     vertex vertices[NUM_COLUMNS][NUM_ROWS];
     int mostARCs;
