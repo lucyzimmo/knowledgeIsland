@@ -554,7 +554,7 @@ int getARC(Game g, path pathToEdge) {
 }
 
 void throwDice (Game g, int diceScore){
-    g->currentTurn++; //increases current turn
+    g->turnNumber++; //increases current turn
 
     // need to check which dice scores correspond to which region
 
