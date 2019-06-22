@@ -36,7 +36,7 @@
 #define ANTICLOCKWISE 2
 
 typedef struct _point {
-    int hexIndex[NUM_HEXES_AT_POINT];
+    int hexIndexes[NUM_HEXES_AT_POINT];
     int ARCIndex;
     int vertexIndex;
     int direction;
