@@ -322,7 +322,7 @@ int getGO8s (Game g, int player) {
 
 int isLegalpath (Game g, path path) {
     int pathLen = strlen (path);
-    char currentString[path_LIMIT];
+    char currentString[PATH_LIMIT];
     int isLegal = TRUE;
     if (path[0] == 'B') {
         isLegal = FALSE;
@@ -334,10 +334,10 @@ int isLegalpath (Game g, path path) {
     int i = 1; // i starts at 1 becasue we already dealt with 0
     while (i < pathLen && isLegal == TRUE) {
         copyPartOfString (path, currentString, 0, i); // updates currentString
-        Point currentPoint = pathToPoint (currentString);
+        Point currentPoint = pathToPoint (g, currentString);
         if (isLegalTurn (g, currentPoint, currentString[i]) == FALSE) {
             isLegal = FALSE;
-        } 
+        }
     }
     return isLegal;
 }
