@@ -59,7 +59,7 @@ typedef struct _hex {
     int ARCs[NUM_SIDES_ON_HEX];
     int campuses[NUM_SIDES_ON_HEX];
     int GO8s[NUM_SIDES_ON_HEX];
-    Hex borderingHexes[NUM_SIDES_ON_HEX];
+    struct _hex *borderingHexes[NUM_SIDES_ON_HEX];
     int ARCIndex;
     int vertexIndex;
     int direction;
