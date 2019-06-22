@@ -548,13 +548,13 @@ int getExchangeRate (Game g, int player, int disciplineFrom, int disciplineTo) {
 // return the contents of the given vertex (ie campus code or 
 // VACANT_VERTEX)
 int getCampus(Game g, path pathToVertex) {
-    Point campusPoint = pathToPoint (pathToVertex);
+    Point campusPoint = pathToPoint (g, pathToVertex);
     return g->hexes[campusPoint->hexIndexes[0]]->campuses[campusPoint->vertexIndex];
 }
 
 // the contents of the given edge (ie ARC code or vacent ARC)
 int getARC(Game g, path pathToEdge) {
-    Point ARCPoint = pathToPoint (pathToEdge);
+    Point ARCPoint = pathToPoint (g, pathToEdge);
     return g->hexes[ARCPoint->hexIndexes[0]]->ARCs[ARCPoint->ARCIndex];
 }
 
