@@ -284,7 +284,7 @@ int getPublications(Game g, int player) {
 }
 
 int getStudents(Game g, int player, int discipline) {
-    int studentAmount = g->players[player-UNI_A]->students[discipline];
+    int studentAmount = g->players[player-UNI_A]->studentType[discipline];
     return studentAmount;
 }
 
