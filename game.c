@@ -91,7 +91,8 @@ struct _game {
 
 void copyPartOfString (char fullString[], char newString[], 
             int startIndex, int stopIndex);
-
+int isLegalpath (Game g, path path);
+int isLegalTurn (Game g, Point point, char nextTurn);
 Point pathToPoint (Game g, path path);
 
 Game newGame (int discipline[], int dice[]) {
