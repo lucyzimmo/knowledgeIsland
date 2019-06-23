@@ -715,7 +715,7 @@ int isLegalAction(Game g, action a) {
                 char ends[2][PATH_LIMIT+1];
                 sprintf(ends[0], "%s", a.destination);
                 sprintf(ends[1], "%sB", a.destination);
-            }
+            
             //now check if arc is empty
             if (getARC(g, a.destination) == NO_ONE) {
                 //if they own a campus at end of an edge
@@ -740,6 +740,7 @@ int isLegalAction(Game g, action a) {
                     }
                 }
             }
+            
         } else if (a.actionCode == RETRAIN_STUDENTS) {
             int currentPlayer = getWhoseTurn (g);
             int exchangeRate = getExchangeRate (g, currentPlayer,
@@ -747,6 +748,7 @@ int isLegalAction(Game g, action a) {
             if (g->players[currentPlayer]->studentType[a.disciplineFrom] >= exchangeRate) {
                 isLegal = TRUE;
             }
+        }
         }
     }
     return isLegal;
