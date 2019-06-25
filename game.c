@@ -404,7 +404,7 @@ Point pathToPoint (Game g, path path) {
     int pathLen = strlen (path);
     // Set up starting point
     Hex currentHex = g->hexes[7];
-    Point currentPoint;
+    Point currentPoint = NULL;
     currentPoint->hexIndexes[0] = 7;
     currentPoint->borderingHexes[0] = currentHex;
     if (path[0] == 'R') {
@@ -627,8 +627,8 @@ void throwDice (Game g, int diceScore){
     }
 }
 int isLegalAction(Game g, action a) {
-    int x, y;
-    int isLegal;
+    int x = 0, y = 0;
+    int isLegal = FALSE;
     int whoseTurn = getWhoseTurn(g);
     int ispathLegal = TRUE;
     if (a.actionCode == OBTAIN_ARC
